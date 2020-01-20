@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/Icons">
+        <file>ressources/Triangle.png</file>
+        <file>ressources/transform_rotate.png</file>
+        <file>ressources/Text2.png</file>
+        <file>ressources/Square.png</file>
+        <file>ressources/Save-as.png</file>
+        <file>ressources/save.png</file>
+        <file>ressources/picture.png</file>
+        <file>ressources/move.png</file>
+        <file>ressources/import.png</file>
+        <file>ressources/folder_vertical_open.png</file>
+        <file>ressources/File_Add.png</file>
+        <file>ressources/export.png</file>
+        <file>ressources/draw_line.png</file>
+        <file>ressources/Circle.png</file>
+    </qresource>
+</RCC>
