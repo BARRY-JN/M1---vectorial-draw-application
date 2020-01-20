@@ -15,6 +15,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void mouseMoveEvent(QMouseEvent *ev) override;
+
 private:
     Ui::MainWindow *ui;
     void createStatusBar();

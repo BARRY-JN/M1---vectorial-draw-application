@@ -14,5 +14,6 @@
         <file>ressources/export.png</file>
         <file>ressources/draw_line.png</file>
         <file>ressources/Circle.png</file>
+        <file>ressources/Pointer.png</file>
     </qresource>
 </RCC>
