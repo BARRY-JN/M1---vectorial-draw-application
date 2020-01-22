@@ -13,10 +13,19 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
 protected:
     void mouseMoveEvent(QMouseEvent *ev) override;
+
+protected slots:
+    void shapeToolSelected();
+    void lineToolSelected();
+    void textToolSelected();
+    void noPropertyToolSelected();
+    void helpButtonClicked();
+    void toolButtonClicked();
+    void propertyButtonClicked();
 
 private:
     Ui::MainWindow *ui;
