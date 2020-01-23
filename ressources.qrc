@@ -16,10 +16,9 @@
         <file>ressources/Help.png</file>
         <file>ressources/Pencil.png</file>
         <file>ressources/Tools.png</file>
-<<<<<<< HEAD
-=======
         <file>ressources/Export.png</file>
         <file>ressources/Import.png</file>
->>>>>>> b91cda7be5f8d937c543e51043786d98fdb02d11
+        <file>ressources/zoom_out.png</file>
+        <file>ressources/zoom_in.png</file>
     </qresource>
 </RCC>
