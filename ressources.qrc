@@ -8,15 +8,18 @@
         <file>ressources/save.png</file>
         <file>ressources/picture.png</file>
         <file>ressources/move.png</file>
-        <file>ressources/import.png</file>
         <file>ressources/folder_vertical_open.png</file>
         <file>ressources/File_Add.png</file>
-        <file>ressources/export.png</file>
         <file>ressources/draw_line.png</file>
         <file>ressources/Circle.png</file>
         <file>ressources/Pointer.png</file>
         <file>ressources/Help.png</file>
         <file>ressources/Pencil.png</file>
         <file>ressources/Tools.png</file>
+<<<<<<< HEAD
+=======
+        <file>ressources/Export.png</file>
+        <file>ressources/Import.png</file>
+>>>>>>> b91cda7be5f8d937c543e51043786d98fdb02d11
     </qresource>
 </RCC>
