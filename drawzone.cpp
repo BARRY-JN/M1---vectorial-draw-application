@@ -12,5 +12,5 @@ drawZone::drawZone(QWidget *parent) :
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
     qDebug() << "x= " << ev->x() << " y= " << ev->y();
-
+    qDebug() << this->parent()->parent()->objectName();
 }
