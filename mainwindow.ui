@@ -35,7 +35,7 @@
          <height>709</height>
         </rect>
        </property>
-       <widget class="QGraphicsView" name="drawZone">
+       <widget class="drawZone" name="drawzone">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -998,6 +998,13 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>drawZone</class>
+   <extends>QGraphicsView</extends>
+   <header>drawzone.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="ressources.qrc"/>
  </resources>

@@ -15,9 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    qDebug() << "init MainWindow" ;
     ui->setupUi(this);
-    ui->page->setMouseTracking(true);
-    connect(ui->drawZone, SIGNAL(mouseMoveEvent(QMouseEvent*)),this, SLOT(mouseMoveEvent(QMouseEvent*)));
+    //ui->page->setMouseTracking(true);
 
     connect(ui->actionAide, SIGNAL(triggered()),this, SLOT(helpButtonClicked()));
     connect(ui->actionOutils, SIGNAL(triggered()),this, SLOT(toolButtonClicked()));
@@ -41,15 +41,6 @@ MainWindow::MainWindow(QWidget *parent)
     mouse_coord->y=0;
     createStatusBar();
 }
-
-void MainWindow::mouseMoveEvent(QMouseEvent *ev)
-{
-    mouse_coord->x = ev->x();
-    mouse_coord->y = ev->y();
-    labMouseCoord->setText("( " + QString::number(mouse_coord->x) + ", "+QString::number(mouse_coord->y)+" )");
-    statusBar()->repaint();
-}
-
 
 MainWindow::~MainWindow()
 {

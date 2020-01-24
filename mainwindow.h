@@ -15,9 +15,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
-protected:
-    void mouseMoveEvent(QMouseEvent *ev) override;
-
 protected slots:
     void shapeToolSelected();
     void lineToolSelected();
