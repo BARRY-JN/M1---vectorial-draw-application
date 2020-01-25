@@ -19,10 +19,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     //ui->page->setMouseTracking(true);
 
+    dockWidgetInit();
+    propertyWidgetInit();
+
+    mouse_coord = new Point();
+    labMouseCoord = new QLabel("",statusBar());
+    mouse_coord->x=0;
+    mouse_coord->y=0;
+    initStatusBar();
+}
+
+void MainWindow::dockWidgetInit(){
     connect(ui->actionAide, SIGNAL(triggered()),this, SLOT(helpButtonClicked()));
     connect(ui->actionOutils, SIGNAL(triggered()),this, SLOT(toolButtonClicked()));
     connect(ui->actionProprietes, SIGNAL(triggered()),this, SLOT(propertyButtonClicked()));
 
+}
+
+void MainWindow::propertyWidgetInit(){
     connect(ui->squareButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
     connect(ui->triangleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
     connect(ui->circleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
@@ -33,13 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->moveButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->rotateButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
-
-
-    mouse_coord = new Point();
-    labMouseCoord = new QLabel("",statusBar());
-    mouse_coord->x=0;
-    mouse_coord->y=0;
-    createStatusBar();
 }
 
 MainWindow::~MainWindow()
@@ -47,7 +54,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::createStatusBar()
+void MainWindow::initStatusBar()
 {
     QLabel *labIcon = new QLabel("",statusBar());
     QIcon *green = new QIcon(":/Icons/ressources/Pointer.png");
@@ -56,6 +63,10 @@ void MainWindow::createStatusBar()
 
     statusBar()->addWidget(labIcon,0);
     statusBar()->addWidget(labMouseCoord,0);
+}
+
+ void MainWindow::setCursorLabelCoord(QMouseEvent* ev){
+    labMouseCoord->setText("( "+QString::number(ev->x())+", "+QString::number(ev->y())+" )");
 }
 
 void MainWindow::shapeToolSelected(){

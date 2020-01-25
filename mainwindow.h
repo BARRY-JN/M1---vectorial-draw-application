@@ -14,8 +14,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
+    static void setCursorLabelCoord(QMouseEvent*);
 
-protected slots:
+private slots:
+    void dockWidgetInit();
+    void propertyWidgetInit();
     void shapeToolSelected();
     void lineToolSelected();
     void textToolSelected();
@@ -24,8 +27,9 @@ protected slots:
     void toolButtonClicked();
     void propertyButtonClicked();
 
+
 private:
     Ui::MainWindow *ui;
-    void createStatusBar();
+    void initStatusBar();
 };
 #endif // MAINWINDOW_H

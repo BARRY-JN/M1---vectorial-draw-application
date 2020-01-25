@@ -1,5 +1,7 @@
 #include <QDebug>
 #include <QMouseEvent>
+#include <QApplication>
+#include "mainwindow.h"
 #include "drawzone.h"
 
 drawZone::drawZone(QWidget *parent) :
@@ -11,6 +13,5 @@ drawZone::drawZone(QWidget *parent) :
 
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
-    qDebug() << "x= " << ev->x() << " y= " << ev->y();
-    qDebug() << this->parent()->parent()->objectName();
+    MainWindow::setCursorLabelCoord(ev);
 }
