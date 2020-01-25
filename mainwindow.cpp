@@ -1,5 +1,6 @@
 #include <QMouseEvent>
 #include <QDebug>
+#include <QColorDialog>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -23,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     propertyWidgetInit();
 
     mouse_coord = new Point();
-    labMouseCoord = new QLabel("",statusBar());
+    labMouseCoord = new QLabel("( 0, 0 )",statusBar());
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
@@ -109,4 +110,29 @@ void MainWindow::propertyButtonClicked(){
         ui->propertyWidget->show();
     }
 }
+
+void MainWindow::on_strokeColorButton_clicked()
+{
+    QColor couleur = QColorDialog::getColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()), this, "Choisir une couleur");
+    int r=0, g=0, b=0;
+    couleur.getRgb(&r,&g,&b);
+    QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
+    ui->strokeColorButton->setStyleSheet(scolor);
+    ui->strokeColorButton2->setStyleSheet(scolor);
+}
+
+void MainWindow::on_strokeColorButton2_clicked()
+{
+    on_strokeColorButton_clicked();
+}
+
+void MainWindow::on_fillColorButton_clicked()
+{
+    QColor couleur = QColorDialog::getColor(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()), this, "Choisir une couleur");
+    int r=0, g=0, b=0;
+    couleur.getRgb(&r,&g,&b);
+    QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
+    ui->fillColorButton->setStyleSheet(scolor);
+}
+
 

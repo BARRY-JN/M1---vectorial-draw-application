@@ -26,7 +26,11 @@ private slots:
     void helpButtonClicked();
     void toolButtonClicked();
     void propertyButtonClicked();
+    void on_strokeColorButton_clicked();
 
+    void on_fillColorButton_clicked();
+
+    void on_strokeColorButton2_clicked();
 
 private:
     Ui::MainWindow *ui;
