@@ -7,6 +7,13 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+struct Point
+{
+   int x, y;
+};
+
+enum Tool { NONE, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE };
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

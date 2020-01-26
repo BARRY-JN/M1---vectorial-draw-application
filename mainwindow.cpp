@@ -4,13 +4,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-struct Point
-{
-   int x, y;
-};
-
-enum Tool { NONE, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE };
-
 Point *mouse_coord;
 QLabel *labMouseCoord;
 QLabel *labIcon;
