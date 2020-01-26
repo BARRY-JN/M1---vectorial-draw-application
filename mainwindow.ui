@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>965</width>
+    <width>981</width>
     <height>790</height>
    </rect>
   </property>
@@ -50,7 +50,7 @@
          <x>0</x>
          <y>0</y>
          <width>498</width>
-         <height>706</height>
+         <height>686</height>
         </rect>
        </property>
        <widget class="drawZone" name="drawzone">
@@ -64,8 +64,8 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>400</width>
-          <height>400</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
         <property name="autoFillBackground">
@@ -90,11 +90,20 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <property name="movable">
     <bool>false</bool>
    </property>
    <property name="allowedAreas">
     <set>Qt::AllToolBarAreas</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
    <property name="floatable">
     <bool>false</bool>
@@ -112,9 +121,11 @@
    <addaction name="actionImporter"/>
    <addaction name="actionExporter"/>
    <addaction name="separator"/>
+   <addaction name="separator"/>
    <addaction name="actionOutils"/>
    <addaction name="actionAide"/>
    <addaction name="actionProprietes"/>
+   <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="actionZoomPlus"/>
    <addaction name="actionZoomMoins"/>
@@ -358,7 +369,7 @@
                <bool>true</bool>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="autoExclusive">
                <bool>true</bool>
@@ -538,7 +549,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>3</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page">
            <widget class="QWidget" name="layoutWidget">
@@ -576,7 +587,7 @@
                <item>
                 <widget class="QLabel" name="label_10">
                  <property name="text">
-                  <string>0</string>
+                  <string>1</string>
                  </property>
                 </widget>
                </item>
@@ -678,7 +689,7 @@
                <item>
                 <widget class="QLabel" name="label_11">
                  <property name="text">
-                  <string>0</string>
+                  <string>1</string>
                  </property>
                 </widget>
                </item>
@@ -735,6 +746,9 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="spinBox">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
                   <property name="value">
                    <number>12</number>
                   </property>
@@ -792,7 +806,7 @@
              </rect>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cet outil &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;ne possède pas&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;de caractéristiques.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </widget>
@@ -1030,7 +1044,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Icons/ressources/zoom_in.png</normaloff>:/Icons/ressources/zoom_in.png</iconset>
    </property>
    <property name="text">
-    <string>ZoomPlus</string>
+    <string>Zoom +</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effectuer un&lt;span style=&quot; font-weight:600;&quot;&gt; zoom avant&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1042,7 +1056,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Icons/ressources/zoom_out.png</normaloff>:/Icons/ressources/zoom_out.png</iconset>
    </property>
    <property name="text">
-    <string>ZoomMoins</string>
+    <string>Zoom -</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effectuer un&lt;span style=&quot; font-weight:600;&quot;&gt; zoom arrière&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

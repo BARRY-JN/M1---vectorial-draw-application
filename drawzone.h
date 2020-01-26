@@ -10,6 +10,7 @@ public:
 
 protected:
     void mouseMoveEvent(QMouseEvent *ev) override;
+    void leaveEvent(QEvent *);
 };
 
 #endif // DRAWZONE_H

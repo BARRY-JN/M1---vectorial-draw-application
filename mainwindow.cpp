@@ -9,8 +9,12 @@ struct Point
    int x, y;
 };
 
+enum Tool { NONE, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE };
+
 Point *mouse_coord;
 QLabel *labMouseCoord;
+QLabel *labIcon;
+Tool actualTool;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,7 +28,11 @@ MainWindow::MainWindow(QWidget *parent)
     propertyWidgetInit();
 
     mouse_coord = new Point();
-    labMouseCoord = new QLabel("( 0, 0 )",statusBar());
+    labMouseCoord = new QLabel("",statusBar());
+    labIcon = new QLabel("",statusBar());
+    labIcon->hide();
+
+    actualTool = NONE;
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
@@ -57,7 +65,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::initStatusBar()
 {
-    QLabel *labIcon = new QLabel("",statusBar());
     QIcon *green = new QIcon(":/Icons/ressources/Pointer.png");
     labIcon->setPixmap( green->pixmap(24,24) );
 
@@ -67,19 +74,21 @@ void MainWindow::initStatusBar()
 }
 
  void MainWindow::setCursorLabelCoord(QMouseEvent* ev){
+    labMouseCoord->show();
+    labIcon->show();
     labMouseCoord->setText("( "+QString::number(ev->x())+", "+QString::number(ev->y())+" )");
+}
+
+ void MainWindow::leaveDrawZone(){
+    labMouseCoord->hide();
+    labIcon->hide();
+
 }
 
 void MainWindow::shapeToolSelected(){
     ui->actualProperty->setCurrentIndex(0);
 }
 
-void MainWindow::lineToolSelected(){
-    ui->actualProperty->setCurrentIndex(1);
-}
-void MainWindow::textToolSelected(){
-    ui->actualProperty->setCurrentIndex(2);
-}
 void MainWindow::noPropertyToolSelected(){
     ui->actualProperty->setCurrentIndex(3);
 }
@@ -113,12 +122,14 @@ void MainWindow::propertyButtonClicked(){
 
 void MainWindow::on_strokeColorButton_clicked()
 {
-    QColor couleur = QColorDialog::getColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()), this, "Choisir une couleur");
-    int r=0, g=0, b=0;
-    couleur.getRgb(&r,&g,&b);
-    QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
-    ui->strokeColorButton->setStyleSheet(scolor);
-    ui->strokeColorButton2->setStyleSheet(scolor);
+    QColor color = QColorDialog::getColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()), this, "Choisir une couleur");
+    if( color.isValid() ){
+        int r=0, g=0, b=0;
+        color.getRgb(&r,&g,&b);
+        QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
+        ui->strokeColorButton->setStyleSheet(scolor);
+        ui->strokeColorButton2->setStyleSheet(scolor);
+    }
 }
 
 void MainWindow::on_strokeColorButton2_clicked()
@@ -128,11 +139,50 @@ void MainWindow::on_strokeColorButton2_clicked()
 
 void MainWindow::on_fillColorButton_clicked()
 {
-    QColor couleur = QColorDialog::getColor(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()), this, "Choisir une couleur");
-    int r=0, g=0, b=0;
-    couleur.getRgb(&r,&g,&b);
-    QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
-    ui->fillColorButton->setStyleSheet(scolor);
+    QColor color = QColorDialog::getColor(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()), this, "Choisir une couleur");
+    if( color.isValid() ){
+        int r=0, g=0, b=0;
+        color.getRgb(&r,&g,&b);
+        QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
+        ui->fillColorButton->setStyleSheet(scolor);
+    }
 }
 
+void MainWindow::lineToolSelected(){
+    ui->actualProperty->setCurrentIndex(1);
+    actualTool = LINE;
+}
+void MainWindow::textToolSelected(){
+    ui->actualProperty->setCurrentIndex(2);
+    actualTool = TEXT;
+}
 
+void MainWindow::on_squareButton_clicked()
+{
+    actualTool = RECTANGLE;
+}
+
+void MainWindow::on_circleButton_clicked()
+{
+    actualTool = CIRCLE;
+}
+
+void MainWindow::on_triangleButton_clicked()
+{
+    actualTool = TRIANGLE;
+}
+
+void MainWindow::on_pictureButton_clicked()
+{
+    actualTool = IMAGE;
+}
+
+void MainWindow::on_moveButton_clicked()
+{
+    actualTool = MOVE;
+}
+
+void MainWindow::on_rotateButton_clicked()
+{
+    actualTool = ROTATE;
+}

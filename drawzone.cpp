@@ -16,3 +16,7 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
     MainWindow::setCursorLabelCoord(ev);
 }
 
+void drawZone::leaveEvent(QEvent * e)
+{
+    MainWindow::leaveDrawZone();
+}

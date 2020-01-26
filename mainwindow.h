@@ -15,6 +15,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
     static void setCursorLabelCoord(QMouseEvent*);
+    static void leaveDrawZone();
 
 private slots:
     void dockWidgetInit();
@@ -31,6 +32,18 @@ private slots:
     void on_fillColorButton_clicked();
 
     void on_strokeColorButton2_clicked();
+
+    void on_squareButton_clicked();
+
+    void on_circleButton_clicked();
+
+    void on_triangleButton_clicked();
+
+    void on_pictureButton_clicked();
+
+    void on_moveButton_clicked();
+
+    void on_rotateButton_clicked();
 
 private:
     Ui::MainWindow *ui;
