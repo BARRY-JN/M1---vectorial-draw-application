@@ -6,46 +6,109 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>965</width>
+    <width>981</width>
     <height>790</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Logiciel de dessin vectoriel</string>
   </property>
   <property name="documentMode">
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_6">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_7">
     <item row="0" column="0">
      <widget class="QScrollArea" name="scrollArea">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>1</width>
+        <height>1</height>
+       </size>
+      </property>
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustToContents</enum>
+      </property>
       <property name="widgetResizable">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>349</width>
-         <height>709</height>
+         <width>498</width>
+         <height>686</height>
         </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <widget class="drawZone" name="drawzone">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>400</width>
-          <height>400</height>
+          <width>300</width>
+          <height>300</height>
          </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>2</width>
+          <height>1</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>3000</width>
+          <height>3000</height>
+         </size>
         </property>
         <property name="autoFillBackground">
          <bool>true</bool>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
        </widget>
       </widget>
@@ -57,11 +120,20 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <property name="movable">
     <bool>false</bool>
    </property>
    <property name="allowedAreas">
     <set>Qt::AllToolBarAreas</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
    <property name="floatable">
     <bool>false</bool>
@@ -79,16 +151,18 @@
    <addaction name="actionImporter"/>
    <addaction name="actionExporter"/>
    <addaction name="separator"/>
+   <addaction name="separator"/>
    <addaction name="actionOutils"/>
    <addaction name="actionAide"/>
    <addaction name="actionProprietes"/>
+   <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="actionZoomPlus"/>
    <addaction name="actionZoomMoins"/>
   </widget>
   <widget class="QDockWidget" name="toolWidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -324,6 +398,9 @@
               <property name="checkable">
                <bool>true</bool>
               </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
@@ -453,7 +530,7 @@
   </widget>
   <widget class="QDockWidget" name="propertyWidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -461,7 +538,7 @@
    <property name="minimumSize">
     <size>
      <width>211</width>
-     <height>397</height>
+     <height>402</height>
     </size>
    </property>
    <property name="features">
@@ -505,24 +582,30 @@
            <number>1</number>
           </property>
           <widget class="QWidget" name="page">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>11</y>
-              <width>231</width>
-              <height>156</height>
+              <x>0</x>
+              <y>0</y>
+              <width>154</width>
+              <height>164</height>
              </rect>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <item>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="0" column="0">
               <widget class="QLabel" name="label">
                <property name="text">
                 <string>Epaisseur du trait (px):</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="1" column="0">
               <layout class="QHBoxLayout" name="horizontalLayout_7">
                <item>
                 <widget class="QSlider" name="horizontalSlider">
@@ -540,13 +623,13 @@
                <item>
                 <widget class="QLabel" name="label_10">
                  <property name="text">
-                  <string>0</string>
+                  <string>1</string>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
-             <item>
+             <item row="2" column="0">
               <layout class="QVBoxLayout" name="verticalLayout_6">
                <item>
                 <widget class="QLabel" name="label_2">
@@ -556,7 +639,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton">
+                <widget class="QPushButton" name="strokeColorButton2">
                  <property name="autoFillBackground">
                   <bool>false</bool>
                  </property>
@@ -570,7 +653,7 @@
                </item>
               </layout>
              </item>
-             <item>
+             <item row="3" column="0">
               <layout class="QVBoxLayout" name="verticalLayout_7">
                <item>
                 <widget class="QLabel" name="label_3">
@@ -580,7 +663,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_2">
+                <widget class="QPushButton" name="fillColorButton">
                  <property name="autoFillBackground">
                   <bool>false</bool>
                  </property>
@@ -598,24 +681,33 @@
            </widget>
           </widget>
           <widget class="QWidget" name="page_2">
-           <widget class="QWidget" name="layoutWidget">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <widget class="QWidget" name="layoutWidget1">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>231</width>
-              <height>101</height>
+              <x>0</x>
+              <y>0</y>
+              <width>154</width>
+              <height>106</height>
              </rect>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_8">
-             <item>
+            <layout class="QGridLayout" name="gridLayout_6">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
+             <item row="0" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
                 <string>Epaisseur du trait (px):</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="1" column="0">
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
                 <widget class="QSlider" name="horizontalSlider_2">
@@ -633,13 +725,13 @@
                <item>
                 <widget class="QLabel" name="label_11">
                  <property name="text">
-                  <string>0</string>
+                  <string>1</string>
                  </property>
                 </widget>
                </item>
               </layout>
              </item>
-             <item>
+             <item row="2" column="0">
               <layout class="QVBoxLayout" name="verticalLayout_9">
                <item>
                 <widget class="QLabel" name="label_5">
@@ -649,7 +741,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_3">
+                <widget class="QPushButton" name="strokeColorButton">
                  <property name="autoFillBackground">
                   <bool>false</bool>
                  </property>
@@ -659,6 +751,12 @@
                  <property name="text">
                   <string/>
                  </property>
+                 <property name="default">
+                  <bool>false</bool>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -667,6 +765,12 @@
            </widget>
           </widget>
           <widget class="QWidget" name="page_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <layout class="QGridLayout" name="gridLayout">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_5">
@@ -684,6 +788,9 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="spinBox">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
                   <property name="value">
                    <number>12</number>
                   </property>
@@ -731,17 +838,23 @@
            </layout>
           </widget>
           <widget class="QWidget" name="page_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <widget class="QLabel" name="label_9">
             <property name="geometry">
              <rect>
               <x>10</x>
               <y>10</y>
-              <width>251</width>
-              <height>51</height>
+              <width>161</width>
+              <height>91</height>
              </rect>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cet outil ne possède pas de&lt;/p&gt;&lt;p&gt;caractéristiques.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </widget>
@@ -768,7 +881,7 @@
    <property name="minimumSize">
     <size>
      <width>250</width>
-     <height>536</height>
+     <height>541</height>
     </size>
    </property>
    <property name="features">
@@ -979,7 +1092,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Icons/ressources/zoom_in.png</normaloff>:/Icons/ressources/zoom_in.png</iconset>
    </property>
    <property name="text">
-    <string>ZoomPlus</string>
+    <string>Zoom +</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effectuer un&lt;span style=&quot; font-weight:600;&quot;&gt; zoom avant&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -991,7 +1104,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Icons/ressources/zoom_out.png</normaloff>:/Icons/ressources/zoom_out.png</iconset>
    </property>
    <property name="text">
-    <string>ZoomMoins</string>
+    <string>Zoom -</string>
    </property>
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effectuer un&lt;span style=&quot; font-weight:600;&quot;&gt; zoom arrière&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
