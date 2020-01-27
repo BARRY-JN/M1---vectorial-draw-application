@@ -61,8 +61,8 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
         int x,y,x2,y2;
         x2=0;
         y2=0;
-        x = ev->pos().x();
-        y = ev->pos().y();
+        x = ev->x();
+        y = ev->y();
         qDebug() << x << ", " << y;
         QPointF point = mapToScene(x, y);
         QPointF point2;

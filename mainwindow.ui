@@ -76,12 +76,12 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>300</width>
-          <height>300</height>
+          <width>400</width>
+          <height>400</height>
          </rect>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -94,21 +94,32 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>3000</width>
-          <height>3000</height>
+          <width>400</width>
+          <height>400</height>
          </size>
         </property>
         <property name="autoFillBackground">
          <bool>true</bool>
         </property>
         <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+         <enum>Qt::ScrollBarAsNeeded</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+         <enum>Qt::ScrollBarAsNeeded</enum>
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
+        </property>
+        <property name="interactive">
+         <bool>false</bool>
+        </property>
+        <property name="sceneRect">
+         <rectf>
+          <x>0.000000000000000</x>
+          <y>0.000000000000000</y>
+          <width>400.000000000000000</width>
+          <height>400.000000000000000</height>
+         </rectf>
         </property>
        </widget>
       </widget>
