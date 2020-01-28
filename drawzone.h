@@ -6,11 +6,13 @@
 #include <QGraphicsItem>
 #include <QtGui>
 #include <QWidget>
+#include "mainwindow.h"
 
 class drawZone : public QGraphicsView
 {
 public:
     explicit drawZone(QWidget *parent = 0);
+    void setactualTool(Tool);
 
 protected:
     void mouseMoveEvent(QMouseEvent *ev) override;
@@ -29,6 +31,7 @@ private :
     QGraphicsPolygonItem *polygon;
     QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
+    Tool actualTool;
 
 signals:
 

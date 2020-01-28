@@ -5,15 +5,13 @@
 #include <QAction>
 #include <QMenu>
 #include <QMessageBox>
-#include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "mainwindow.h"
 
 Point *mouse_coord;
 QLabel *labMouseCoord;
 QLabel *labIcon;
 QLabel *labMsg;
-Tool actualTool;
-
 bool isSaved=false;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -40,15 +38,10 @@ MainWindow::MainWindow(QWidget *parent)
     labIcon->hide();
     labMsg = new QLabel("",statusBar());
 
-    actualTool = NONE;
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
 
-}
-
-Tool MainWindow::getactualTool(){
-    return actualTool;
 }
 
 void MainWindow::dockWidgetInit(){
@@ -64,11 +57,13 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->circleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
 
     connect(ui->lineButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
+    connect(ui->pointButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
     connect(ui->textButton, SIGNAL(clicked()),this,SLOT(textToolSelected()));
 
     connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->moveButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->rotateButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
+    connect(ui->cursorButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
 }
 
 MainWindow::~MainWindow()
@@ -253,41 +248,58 @@ void MainWindow::on_fillColorButton_clicked()
 
 void MainWindow::lineToolSelected(){
     ui->actualProperty->setCurrentIndex(1);
-    actualTool = LINE;
+    ui->drawzone->setactualTool(LINE);
 }
 void MainWindow::textToolSelected(){
     ui->actualProperty->setCurrentIndex(2);
-    actualTool = TEXT;
+    ui->drawzone->setactualTool(TEXT);
 }
 
 void MainWindow::on_squareButton_clicked()
 {
-    actualTool = RECTANGLE;
+    ui->drawzone->setactualTool(RECTANGLE);
 }
 
 void MainWindow::on_circleButton_clicked()
 {
-    actualTool = CIRCLE;
+    ui->drawzone->setactualTool(CIRCLE);
 }
 
 void MainWindow::on_triangleButton_clicked()
 {
-    actualTool = TRIANGLE;
+    ui->drawzone->setactualTool(TRIANGLE);
 }
 
 void MainWindow::on_pictureButton_clicked()
 {
-    actualTool = IMAGE;
+    ui->drawzone->setactualTool(IMAGE);
 }
 
 void MainWindow::on_moveButton_clicked()
 {
-    actualTool = MOVE;
+    ui->drawzone->setactualTool(MOVE);
 }
 
 void MainWindow::on_rotateButton_clicked()
 {
-    actualTool = ROTATE;
+    ui->drawzone->setactualTool(ROTATE);
+}
+
+void MainWindow::on_cursorButton_clicked()
+{
+    ui->drawzone->setactualTool(NONE);
+}
+
+void MainWindow::on_freeDrawButton_clicked()
+{
+    ui->actualProperty->setCurrentIndex(1);
+    ui->drawzone->setactualTool(FREE);
+}
+
+void MainWindow::on_pointButton_clicked()
+{
+    ui->actualProperty->setCurrentIndex(1);
+    ui->drawzone->setactualTool(POLYGON);
 }
 
 void MainWindow::on_actionZoomPlus_triggered()

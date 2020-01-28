@@ -34,9 +34,24 @@ drawZone::drawZone(QWidget *parent) :
    */
 }
 
+void drawZone::setactualTool(Tool tool){
+    actualTool=tool;
+}
+
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
+    QGraphicsEllipseItem *circle;
+    QPointF point = mapToScene(ev->x(), ev->y());
+    int x,y;
+    x=point.x();
+    y=point.y();
     MainWindow::setCursorLabelCoord(ev);
+    if(actualTool==FREE){
+        if(ev->buttons().testFlag(Qt::LeftButton)){
+
+            circle = scene->addEllipse(x-(25/2),y-(25/2),25,25,QPen(Qt::blue), QBrush(Qt::blue));
+        }
+    }
 }
 
 void drawZone::leaveEvent(QEvent * e)
@@ -67,7 +82,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
         QPointF point = mapToScene(x, y);
         QPointF point2;
 
-        switch(MainWindow::getactualTool()){
+        switch(actualTool){
             case(CIRCLE):
             {
                 QGraphicsEllipseItem *circle;
@@ -93,6 +108,11 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     //PointActuel=0;
                     return;
                 }
+                break;
+            }
+            case(POLYGON):
+            {
+
                 break;
             }
 
@@ -129,6 +149,8 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(MOVE):
                 break;
             case(ROTATE):
+                break;
+            case(NONE):
                 break;
         }
 
