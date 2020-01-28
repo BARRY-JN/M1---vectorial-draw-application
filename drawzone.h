@@ -12,7 +12,15 @@ class drawZone : public QGraphicsView
 {
 public:
     explicit drawZone(QWidget *parent = 0);
-    void setactualTool(Tool);
+    void clearScene();
+    void saveScene();
+    //-----------------------------------------
+//    QVariant item_to_variant(QGraphicsItem* item);
+//    QGraphicsItem* item_from_variant(QVariant v);
+//    void save_state();
+//    void restore_state();
+
+    //---------------------------------------------
 
 protected:
     void mouseMoveEvent(QMouseEvent *ev) override;

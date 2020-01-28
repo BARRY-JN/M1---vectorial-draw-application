@@ -12,6 +12,8 @@ Point *mouse_coord;
 QLabel *labMouseCoord;
 QLabel *labIcon;
 QLabel *labMsg;
+Tool actualTool;
+
 bool isSaved=false;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -38,10 +40,15 @@ MainWindow::MainWindow(QWidget *parent)
     labIcon->hide();
     labMsg = new QLabel("",statusBar());
 
+    actualTool = NONE;
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
 
+}
+
+Tool MainWindow::getactualTool(){
+    return actualTool;
 }
 
 void MainWindow::dockWidgetInit(){
@@ -88,7 +95,8 @@ void MainWindow::showStatusMessage(const QString &msg){
 
 void MainWindow::newFile()
 {
-        ui->drawzone->show();
+    ui->drawzone->clearScene();
+    ui->drawzone->show();
 }
 
 void MainWindow::openFile()

@@ -49,7 +49,7 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
     if(actualTool==FREE){
         if(ev->buttons().testFlag(Qt::LeftButton)){
 
-            circle = scene->addEllipse(x-(25/2),y-(25/2),25,25,QPen(Qt::blue), QBrush(Qt::blue));
+            circle = scene->addEllipse(x-(5/2),y-(5/2),5,5,QPen(Qt::blue), QBrush(Qt::blue));
         }
     }
 }
@@ -58,6 +58,72 @@ void drawZone::leaveEvent(QEvent * e)
 {
     MainWindow::leaveDrawZone();
 }
+
+void drawZone::clearScene()
+{
+
+    scene->clear();
+}
+
+//------------Code ci dessous insipreré de-------------------------------------------------------
+// ------- https://stackoverflow.com/questions/30678877/save-load-items-from-a-qgraphicsscene ---
+
+
+
+//QVariant drawZone::item_to_variant(QGraphicsItem* item)
+//{
+//  QVariantHash data;
+//  //save all needed attributes
+//  data["pos"] = item->pos();
+//  data["rotation"] = item->rotation();
+//  if(QGraphicsPixmapItem* pixmap_item = dynamic_cast<QGraphicsPixmapItem*>(item))
+//  {
+//    data["type"] = "pixmap";
+//    data["pixmap"] = pixmap_item->pixmap();
+//  } else { /*...*/ }
+// //...
+//  return data;
+//}
+
+//QGraphicsItem* drawZone::item_from_variant(QVariant v)
+//{
+//  QVariantHash data = v.toHash();
+//  QGraphicsItem* result;
+//  if (data["type"].toString() == "pixmap") {
+//    result = new QGraphicsPixmapItem();
+//    result->setPixmap(data["pixmap"].value<QPixmap>());
+//  } else { /*...*/ }
+//  result->setPos(data["pos"].toPointF());
+//  result->setRotation(data["rotation"].toDouble());
+//  //...
+//  return result;
+//}
+
+//void drawZone::save_state()
+//{
+//  QVariantList data_list;
+//  foreach(QGraphicsItem* item, items_list)
+//  {
+//    data_list << item_to_variant(item);
+//  }
+//  QSettings settings;
+//  settings.setValue("items", data_list);
+//}
+
+//void drawZone::restore_state()
+//{
+//  QSettings settings;
+//  foreach(QVariant data, settings.value("items").toList()) {
+//    QGraphicsItem* item = item_from_variant(data);
+//    scene->addItem(item);
+//    items_list << item;
+//  }
+
+//}
+
+
+//----------------------------------------------------------------------------------------
+
 
 void drawZone::mousePressEvent(QMouseEvent *ev)
 {
