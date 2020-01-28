@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>981</width>
-    <height>790</height>
+    <height>843</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,13 +60,13 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-12</y>
-         <width>498</width>
-         <height>686</height>
+         <y>0</y>
+         <width>800</width>
+         <height>800</height>
         </rect>
        </property>
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -102,10 +102,10 @@
          <bool>true</bool>
         </property>
         <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
@@ -117,8 +117,8 @@
          <rectf>
           <x>0.000000000000000</x>
           <y>0.000000000000000</y>
-          <width>400.000000000000000</width>
-          <height>400.000000000000000</height>
+          <width>600.000000000000000</width>
+          <height>600.000000000000000</height>
          </rectf>
         </property>
        </widget>
