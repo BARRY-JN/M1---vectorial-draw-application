@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionEnregistrer, SIGNAL(triggered()),SLOT(save()));
     connect(ui->actionEnregistrer_sous, SIGNAL(triggered()),SLOT(saveAs()));
 
+    ui->helpWidget->hide();
     dockWidgetInit();
     propertyWidgetInit();
 
@@ -43,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
+
 }
 
 Tool MainWindow::getactualTool(){
