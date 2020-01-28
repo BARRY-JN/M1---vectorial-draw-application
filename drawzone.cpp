@@ -119,6 +119,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 QFont serifFont("Times", 10, QFont::Bold);
                 text = scene->addText(QString("Bonjour !"), QFont(serifFont));
                 text->setPos(point);
+                text->setFlag(QGraphicsItem::ItemIsSelectable);
                 text->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                 break;
             }
