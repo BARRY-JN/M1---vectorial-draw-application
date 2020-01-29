@@ -40,7 +40,7 @@ private :
     QGraphicsRectItem *rectangle;
     QGraphicsTextItem *text;
     QGraphicsLineItem *line;
-    //QGraphicsPathItem *path;
+    QGraphicsPathItem *pathItem;
     QGraphicsPixmapItem *pixmap;
     QGraphicsPolygonItem *polygon;
     QGraphicsSimpleTextItem *simpletext;

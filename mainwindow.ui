@@ -691,7 +691,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="sizePolicy">
@@ -724,7 +724,7 @@
                    <number>1</number>
                   </property>
                   <property name="maximum">
-                   <number>100</number>
+                   <number>50</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -866,7 +866,7 @@
                    <number>1</number>
                   </property>
                   <property name="maximum">
-                   <number>100</number>
+                   <number>50</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>

@@ -82,11 +82,15 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
 
             if(count%4==0){
 
-            this->clearScene();
-
+            //this->clearScene();
             path->lineTo(point);
+            if(pathItem!=nullptr){
+                scene->removeItem(pathItem);
+            }
+            pathItem=scene->addPath(*path,QPen(actualColor, actualSize));
             //path.arcTo(path.currentPosition().x(),path.currentPosition().y(),point.x()-path.currentPosition().x(),point.y()-path.currentPosition().y(),50,50);
-            scene->addPath(*path,QPen(actualColor, actualSize));
+
+
             this->repaint();
             }
             count++;
@@ -97,6 +101,7 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
 
 void drawZone::mouseReleaseEvent(QMouseEvent *event){
     if(actualTool==FREE){
+        pathItem=nullptr;
         paths.append(*path);
         path=new QPainterPath();
     }
@@ -228,7 +233,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(FREE):
                 //points.append(point_init);
                 path->moveTo(point_init);
-                 scene->addPath(*path,QPen(Qt::black, actualSize));
                 break;
             case(POLYGON):
             {
