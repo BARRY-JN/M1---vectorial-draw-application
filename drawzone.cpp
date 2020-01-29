@@ -9,15 +9,17 @@
 #include "drawzone.h"
 
 int PointActuel=0;
+int count=0;
 bool first=true;
 QPointF point_init;
+QVector<QPainterPath> paths;
+QPainterPath *path=new QPainterPath();
 
 drawZone::drawZone(QWidget *parent) :
     QGraphicsView(parent)
 {
     qDebug() << "init drawZone" ;
     setMouseTracking(true);
-
     scene = new QGraphicsScene(this);
     setScene(scene);
 
@@ -69,12 +71,35 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
 
     if(actualTool==FREE){
         if(ev->buttons().testFlag(Qt::LeftButton)){
-            scene->addLine(QLineF(point_init,point),QPen(QBrush(QColor::fromRgb(0,255,255)),actualSize));
-            //scene->addPolygon(QPolygonF())
-            point_init = QPointF(point);
+            /*
+            if(count%10==0){
+                scene->addLine(QLineF(point_init,point),QPen(QBrush(QColor::fromRgb(0,255,255)),actualSize));
+                //scene->addPolygon(QPolygonF())
+                point_init = QPointF(point);
+            }
+            count++;
+            */
+
+            if(count%4==0){
+
+            this->clearScene();
+
+            path->lineTo(point);
+            //path.arcTo(path.currentPosition().x(),path.currentPosition().y(),point.x()-path.currentPosition().x(),point.y()-path.currentPosition().y(),50,50);
+            scene->addPath(*path,QPen(actualColor, actualSize));
+            this->repaint();
+            }
+            count++;
         }
     }
 
+}
+
+void drawZone::mouseReleaseEvent(QMouseEvent *event){
+    if(actualTool==FREE){
+        paths.append(*path);
+        path=new QPainterPath();
+    }
 }
 
 void drawZone::leaveEvent(QEvent * e)
@@ -200,6 +225,11 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 }
                 break;
             }
+            case(FREE):
+                //points.append(point_init);
+                path->moveTo(point_init);
+                 scene->addPath(*path,QPen(Qt::black, actualSize));
+                break;
             case(POLYGON):
             {
 

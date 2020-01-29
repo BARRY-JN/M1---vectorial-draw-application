@@ -28,9 +28,10 @@ public:
     //---------------------------------------------
 
 protected:
-    void mouseMoveEvent(QMouseEvent *ev) override;
-    void mousePressEvent(QMouseEvent *ev) override;
-    void leaveEvent(QEvent *) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void leaveEvent(QEvent*) override;
     void showcontextmenu();
 
 private :
@@ -39,7 +40,7 @@ private :
     QGraphicsRectItem *rectangle;
     QGraphicsTextItem *text;
     QGraphicsLineItem *line;
-    QGraphicsPathItem *path;
+    //QGraphicsPathItem *path;
     QGraphicsPixmapItem *pixmap;
     QGraphicsPolygonItem *polygon;
     QGraphicsSimpleTextItem *simpletext;

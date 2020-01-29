@@ -124,6 +124,9 @@
           <height>600.000000000000000</height>
          </rectf>
         </property>
+        <property name="renderHints">
+         <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::TextAntialiasing</set>
+        </property>
        </widget>
       </widget>
      </widget>
@@ -688,7 +691,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page">
            <property name="sizePolicy">

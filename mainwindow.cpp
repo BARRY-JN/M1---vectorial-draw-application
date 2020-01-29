@@ -254,7 +254,6 @@ void MainWindow::on_fillColorButton_clicked()
 
 void MainWindow::lineToolSelected(){
     ui->actualProperty->setCurrentIndex(1);
-    ui->drawzone->setactualTool(LINE);
 }
 void MainWindow::textToolSelected(){
     ui->actualProperty->setCurrentIndex(2);
@@ -335,12 +334,13 @@ void MainWindow::on_actionImporter_triggered()
         importFile(fileName);
 }
 
-void MainWindow::on_horizontalSlider_sliderMoved(int position)
-{
-    ui->drawzone->setactualSize(position);
-}
 
 void MainWindow::on_horizontalSlider_2_valueChanged(int value)
 {
-    on_horizontalSlider_sliderMoved(value);
+    on_horizontalSlider_valueChanged(value);
+}
+
+void MainWindow::on_horizontalSlider_valueChanged(int value)
+{
+    ui->drawzone->setactualSize(value);
 }

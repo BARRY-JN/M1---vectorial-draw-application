@@ -62,9 +62,9 @@ private slots:
     void on_freeDrawButton_clicked();
     void on_pointButton_clicked();
 
-    void on_horizontalSlider_sliderMoved(int position);
-
     void on_horizontalSlider_2_valueChanged(int value);
+
+    void on_horizontalSlider_valueChanged(int value);
 
 private:
     Ui::MainWindow *ui;
