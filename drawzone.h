@@ -6,12 +6,17 @@
 #include <QGraphicsItem>
 #include <QtGui>
 #include <QWidget>
+#include <QColor>
 #include "mainwindow.h"
 
 class drawZone : public QGraphicsView
 {
 public:
     explicit drawZone(QWidget *parent = 0);
+    void setactualTool(Tool);
+    void setactualColor(QColor);
+    void setactualColor2(QColor);
+    void setactualSize(int);
     void clearScene();
     void saveScene();
     //-----------------------------------------
@@ -40,6 +45,10 @@ private :
     QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
     Tool actualTool;
+    QColor actualColor;
+    QColor actualColor2;
+    int actualSize;
+
 
 signals:
 

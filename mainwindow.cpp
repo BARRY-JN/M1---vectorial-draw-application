@@ -47,10 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
-Tool MainWindow::getactualTool(){
-    return actualTool;
-}
-
 void MainWindow::dockWidgetInit(){
     connect(ui->actionAide, SIGNAL(triggered()),this, SLOT(helpButtonClicked()));
     connect(ui->actionOutils, SIGNAL(triggered()),this, SLOT(toolButtonClicked()));
@@ -235,6 +231,7 @@ void MainWindow::on_strokeColorButton_clicked()
         QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
         ui->strokeColorButton->setStyleSheet(scolor);
         ui->strokeColorButton2->setStyleSheet(scolor);
+        ui->drawzone->setactualColor(color);
     }
 }
 
@@ -251,6 +248,7 @@ void MainWindow::on_fillColorButton_clicked()
         color.getRgb(&r,&g,&b);
         QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
         ui->fillColorButton->setStyleSheet(scolor);
+        ui->drawzone->setactualColor2(color);
     }
 }
 
@@ -335,4 +333,14 @@ void MainWindow::on_actionImporter_triggered()
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty())
         importFile(fileName);
+}
+
+void MainWindow::on_horizontalSlider_sliderMoved(int position)
+{
+    ui->drawzone->setactualSize(position);
+}
+
+void MainWindow::on_horizontalSlider_2_valueChanged(int value)
+{
+    on_horizontalSlider_sliderMoved(value);
 }

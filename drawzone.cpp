@@ -4,10 +4,13 @@
 #include <QAction>
 #include <QMenu>
 #include <QApplication>
+#include <QColorDialog>
 #include "mainwindow.h"
 #include "drawzone.h"
 
 int PointActuel=0;
+bool first=true;
+QPointF point_init;
 
 drawZone::drawZone(QWidget *parent) :
     QGraphicsView(parent)
@@ -17,6 +20,8 @@ drawZone::drawZone(QWidget *parent) :
 
     scene = new QGraphicsScene(this);
     setScene(scene);
+
+
 /*
    QBrush greenBrush(Qt::green);
    QBrush blueBrush(Qt::blue);
@@ -38,20 +43,38 @@ void drawZone::setactualTool(Tool tool){
     actualTool=tool;
 }
 
+void drawZone::setactualSize(int value){
+    actualSize=value;
+}
+
+
+void drawZone::setactualColor(QColor color){
+    actualColor=color;
+}
+
+void drawZone::setactualColor2(QColor color){
+    actualColor2=color;
+}
+
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
-    QGraphicsEllipseItem *circle;
-    QPointF point = mapToScene(ev->x(), ev->y());
+
+    //QPointF point = mapToScene(ev->x(), ev->y());
     int x,y;
-    x=point.x();
-    y=point.y();
+    x = ev->x();
+    y = ev->y();
+    qDebug() << x << ", " << y;
+    QPointF point = mapToScene(x, y);
     MainWindow::setCursorLabelCoord(ev);
+
     if(actualTool==FREE){
         if(ev->buttons().testFlag(Qt::LeftButton)){
-
-            circle = scene->addEllipse(x-(5/2),y-(5/2),5,5,QPen(Qt::blue), QBrush(Qt::blue));
+            scene->addLine(QLineF(point_init,point),QPen(QBrush(QColor::fromRgb(0,255,255)),actualSize));
+            //scene->addPolygon(QPolygonF())
+            point_init = QPointF(point);
         }
     }
+
 }
 
 void drawZone::leaveEvent(QEvent * e)
@@ -145,6 +168,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
         x = ev->x();
         y = ev->y();
         qDebug() << x << ", " << y;
+        point_init = mapToScene(x, y);
         QPointF point = mapToScene(x, y);
         QPointF point2;
 
@@ -152,7 +176,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(CIRCLE):
             {
                 QGraphicsEllipseItem *circle;
-                circle = scene->addEllipse(point.x(),point.y(),25,25,QPen(Qt::blue), QBrush(Qt::blue));
+                circle = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
                 circle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                 break;
             }
@@ -160,7 +184,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             {
                 if(PointActuel==0){
                     QGraphicsEllipseItem *ellipse;
-                    ellipse = scene->addEllipse(point.x(),point.y(),5,5,QPen(Qt::red), QBrush(Qt::red));
+                    ellipse = scene->addEllipse(point.x(),point.y(),actualSize,actualSize,actualColor, actualColor2);
                     ellipse->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                     x2=point.x();
                     y2=point.y();
@@ -170,7 +194,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
                 if(PointActuel==1){
                     QGraphicsLineItem *line;
-                    line = scene->addLine(x2,y2,point.x(),point.y(),QPen(Qt::red));
+                    line = scene->addLine(x2,y2,point.x(),point.y(),actualColor);
                     //PointActuel=0;
                     return;
                 }
@@ -185,7 +209,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(RECTANGLE):
             {
                 QGraphicsRectItem *rectangle;
-                rectangle = scene->addRect(point.x(),point.y(),25,25,QPen(Qt::red), QBrush(Qt::red));
+                rectangle = scene->addRect(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
                 rectangle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                 break;
             }
@@ -194,15 +218,15 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             {
                 QGraphicsPolygonItem *polygon;
                 QPolygonF poly;
-                poly << QPointF(point.x()-15, point.y()) << QPointF(point.x()+15, point.y()) << QPointF(point.x(), point.y()-25 );
-                polygon=scene->addPolygon(poly,QPen(Qt::green),QBrush(Qt::green));
+                poly << QPointF(point.x()-actualSize, point.y()) << QPointF(point.x()+actualSize, point.y()) << QPointF(point.x(), point.y()-actualSize );
+                polygon=scene->addPolygon(poly,actualColor, actualColor2);
                 break;
             }
 
             case(TEXT):
             {
                 QGraphicsTextItem *text;
-                QFont serifFont("Times", 10, QFont::Bold);
+                QFont serifFont("Times", actualSize, QFont::Bold);
                 text = scene->addText(QString("Bonjour !"), QFont(serifFont));
                 text->setPos(point);
                 text->setFlag(QGraphicsItem::ItemIsSelectable);
