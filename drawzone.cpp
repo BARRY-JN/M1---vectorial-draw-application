@@ -41,6 +41,10 @@ drawZone::drawZone(QWidget *parent) :
    */
 }
 
+drawZone::~drawZone(){
+    delete path;
+}
+
 void drawZone::setactualTool(Tool tool){
     actualTool=tool;
 }
@@ -65,7 +69,7 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
     int x,y;
     x = ev->x();
     y = ev->y();
-    qDebug() << x << ", " << y;
+    //qDebug() << x << ", " << y;
     QPointF point = mapToScene(x, y);
     MainWindow::setCursorLabelCoord(ev);
 
@@ -80,18 +84,16 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
             count++;
             */
 
-            if(count%4==0){
+            if(count%2==0){
 
-            //this->clearScene();
-            path->lineTo(point);
-            if(pathItem!=nullptr){
-                scene->removeItem(pathItem);
-            }
-            pathItem=scene->addPath(*path,QPen(actualColor, actualSize));
-            //path.arcTo(path.currentPosition().x(),path.currentPosition().y(),point.x()-path.currentPosition().x(),point.y()-path.currentPosition().y(),50,50);
+                //this->clearScene();
+                path->lineTo(point);
+                if(pathItem!=nullptr){
+                    scene->removeItem(pathItem);
+                }
+                pathItem=scene->addPath(*path,QPen(actualColor, actualSize));
 
-
-            this->repaint();
+                this->repaint();
             }
             count++;
         }

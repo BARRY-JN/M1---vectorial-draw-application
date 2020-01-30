@@ -13,6 +13,7 @@ class drawZone : public QGraphicsView
 {
 public:
     explicit drawZone(QWidget *parent = 0);
+    ~drawZone() override;
     void setactualTool(Tool);
     void setactualColor(QColor);
     void setactualColor2(QColor);

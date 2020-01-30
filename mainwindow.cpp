@@ -45,6 +45,10 @@ MainWindow::MainWindow(QWidget *parent)
     mouse_coord->y=0;
     initStatusBar();
 
+    ui->drawzone->setactualSize(ui->horizontalSlider->value());
+    ui->drawzone->setactualColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()));
+    ui->drawzone->setactualColor2(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()));
+
 }
 
 void MainWindow::dockWidgetInit(){
@@ -254,6 +258,7 @@ void MainWindow::on_fillColorButton_clicked()
 
 void MainWindow::lineToolSelected(){
     ui->actualProperty->setCurrentIndex(1);
+     ui->drawzone->setactualTool(LINE);
 }
 void MainWindow::textToolSelected(){
     ui->actualProperty->setCurrentIndex(2);
