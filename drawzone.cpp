@@ -8,13 +8,6 @@
 #include "mainwindow.h"
 #include "drawzone.h"
 
-int PointActuel=0;
-int count=0;
-bool first=true;
-QPointF point_init;
-QVector<QPainterPath> paths;
-QPainterPath *path=new QPainterPath();
-
 drawZone::drawZone(QWidget *parent) :
     QGraphicsView(parent)
 {
@@ -46,6 +39,15 @@ drawZone::~drawZone(){
 }
 
 void drawZone::setactualTool(Tool tool){
+    if(actualTool==POLYGON){
+        polygons.append(*poly);
+        polygon=nullptr;
+        scene->removeItem(ellipse);
+        ellipse=nullptr;
+        poly= new QPolygonF();
+
+    }
+
     actualTool=tool;
 }
 
@@ -74,26 +76,19 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
     MainWindow::setCursorLabelCoord(ev);
 
     if(actualTool==FREE){
+        //scene->addLine(0,0,point.x(),point.y(),QPen(Qt::red));
         if(ev->buttons().testFlag(Qt::LeftButton)){
-            /*
-            if(count%10==0){
-                scene->addLine(QLineF(point_init,point),QPen(QBrush(QColor::fromRgb(0,255,255)),actualSize));
-                //scene->addPolygon(QPolygonF())
-                point_init = QPointF(point);
-            }
-            count++;
-            */
-
             if(count%2==0){
-
-                //this->clearScene();
                 path->lineTo(point);
+
+                /*
+                On efface le précédent tracé puisqu'un nouveau point a été rajouté
+                */
                 if(pathItem!=nullptr){
                     scene->removeItem(pathItem);
                 }
                 pathItem=scene->addPath(*path,QPen(actualColor, actualSize));
 
-                this->repaint();
             }
             count++;
         }
@@ -238,6 +233,14 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 break;
             case(POLYGON):
             {
+                if(polygon!=nullptr){
+                    scene->removeItem(polygon);
+                    scene->removeItem(ellipse);
+                }
+                poly->append(point_init);
+                //polygon->setPolygon(*poly);
+                polygon=scene->addPolygon(*poly,actualColor,actualColor2);
+                ellipse=scene->addEllipse(point_init.x()-5,point_init.y()-5,10,10, QColor(Qt::red), QColor(Qt::red));
 
                 break;
             }

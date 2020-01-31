@@ -37,19 +37,31 @@ protected:
 
 private :
     QGraphicsScene *scene;
-    QGraphicsEllipseItem *ellipse;
     QGraphicsRectItem *rectangle;
     QGraphicsTextItem *text;
     QGraphicsLineItem *line;
-    QGraphicsPathItem *pathItem;
     QGraphicsPixmapItem *pixmap;
-    QGraphicsPolygonItem *polygon;
     QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
     Tool actualTool;
     QColor actualColor;
     QColor actualColor2;
     int actualSize;
+    int PointActuel=0;
+    int count=0;
+    bool first=true;
+    QPointF point_init;
+
+    //Pour le dessin à main levée
+    QGraphicsPathItem *pathItem=nullptr;
+    QVector<QPainterPath> paths;
+    QPainterPath *path=new QPainterPath();
+
+    //Pour le dessin polygonal
+     QGraphicsPolygonItem *polygon=nullptr;
+     QPolygonF *poly=new QPolygonF();
+     QGraphicsEllipseItem *ellipse=nullptr;
+     QVector<QPolygonF> polygons;
 
 
 signals:

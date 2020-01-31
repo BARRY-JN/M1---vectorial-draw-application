@@ -21,7 +21,7 @@
         <file>ressources/zoom_out.png</file>
         <file>ressources/zoom_in.png</file>
         <file>ressources/drawings.png</file>
-        <file>ressources/draw_vertex.png</file>
         <file>ressources/mouse_pointer.png</file>
+        <file>ressources/draw_polyline.png</file>
     </qresource>
 </RCC>

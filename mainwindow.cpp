@@ -64,7 +64,6 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->circleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
 
     connect(ui->lineButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
-    connect(ui->pointButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
     connect(ui->textButton, SIGNAL(clicked()),this,SLOT(textToolSelected()));
 
     connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
@@ -308,7 +307,7 @@ void MainWindow::on_freeDrawButton_clicked()
 
 void MainWindow::on_pointButton_clicked()
 {
-    ui->actualProperty->setCurrentIndex(1);
+    ui->actualProperty->setCurrentIndex(0);
     ui->drawzone->setactualTool(POLYGON);
 }
 
