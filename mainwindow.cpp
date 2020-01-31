@@ -1,13 +1,20 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QColorDialog>
-#include "mainwindow.h"
+#include <QFileDialog>
+#include <QAction>
+#include <QMenu>
+#include <QMessageBox>
 #include "ui_mainwindow.h"
+#include "mainwindow.h"
 
 Point *mouse_coord;
 QLabel *labMouseCoord;
 QLabel *labIcon;
+QLabel *labMsg;
 Tool actualTool;
+
+bool isSaved=false;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,6 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     //ui->page->setMouseTracking(true);
 
+    ui->drawzone->hide();
+    connect(ui->actionNouveau, SIGNAL(triggered()),this,SLOT(newFile()));
+    connect(ui->actionOuvrir, SIGNAL(triggered()),this,SLOT(openFile()));
+    connect(ui->actionEnregistrer, SIGNAL(triggered()),SLOT(save()));
+    connect(ui->actionEnregistrer_sous, SIGNAL(triggered()),SLOT(saveAs()));
+
+    ui->helpWidget->hide();
     dockWidgetInit();
     propertyWidgetInit();
 
@@ -24,11 +38,17 @@ MainWindow::MainWindow(QWidget *parent)
     labMouseCoord = new QLabel("",statusBar());
     labIcon = new QLabel("",statusBar());
     labIcon->hide();
+    labMsg = new QLabel("",statusBar());
 
     actualTool = NONE;
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
+
+    ui->drawzone->setactualSize(ui->horizontalSlider->value());
+    ui->drawzone->setactualColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()));
+    ui->drawzone->setactualColor2(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()));
+
 }
 
 void MainWindow::dockWidgetInit(){
@@ -49,6 +69,7 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->moveButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->rotateButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
+    connect(ui->cursorButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
 }
 
 MainWindow::~MainWindow()
@@ -64,6 +85,97 @@ void MainWindow::initStatusBar()
 
     statusBar()->addWidget(labIcon,0);
     statusBar()->addWidget(labMouseCoord,0);
+    statusBar()->addWidget(labMsg,0);
+}
+
+void MainWindow::showStatusMessage(const QString &msg){
+    labMsg->setText(msg);
+}
+
+void MainWindow::newFile()
+{
+    ui->drawzone->clearScene();
+    ui->drawzone->show();
+}
+
+void MainWindow::openFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+        loadFile(fileName);
+}
+
+void MainWindow::loadFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
+        return;
+    }
+
+    statusBar()->showMessage(tr("Fichier chargé"), 2000);
+}
+
+void MainWindow::importFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
+        return;
+    }
+
+    showStatusMessage(tr("Fichier importé"));
+}
+
+bool MainWindow::save()
+{
+    if (currentFile.isEmpty()) {
+        return saveAs();
+    } else {
+        return saveFile(currentFile);
+    }
+}
+
+bool MainWindow::saveAs()
+{
+    QFileDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+    return saveFile(dialog.selectedFiles().first());
+}
+
+bool MainWindow::saveFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(QDir::toNativeSeparators(fileName),
+                                  file.errorString()));
+        return false;
+    }
+
+    showStatusMessage("File saved");
+    return true;
+}
+
+void MainWindow::setCurrentFile(const QString &fileName)
+//! [46] //! [47]
+{
+    currentFile = fileName;
+    ui->drawzone->isWindowModified();
+    setWindowModified(false);
+
+    QString shownName = currentFile;
+    if (currentFile.isEmpty())
+        shownName = "untitled.txt";
+    setWindowFilePath(shownName);
 }
 
  void MainWindow::setCursorLabelCoord(QMouseEvent* ev){
@@ -122,6 +234,7 @@ void MainWindow::on_strokeColorButton_clicked()
         QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
         ui->strokeColorButton->setStyleSheet(scolor);
         ui->strokeColorButton2->setStyleSheet(scolor);
+        ui->drawzone->setactualColor(color);
     }
 }
 
@@ -138,44 +251,100 @@ void MainWindow::on_fillColorButton_clicked()
         color.getRgb(&r,&g,&b);
         QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
         ui->fillColorButton->setStyleSheet(scolor);
+        ui->drawzone->setactualColor2(color);
     }
 }
 
 void MainWindow::lineToolSelected(){
     ui->actualProperty->setCurrentIndex(1);
-    actualTool = LINE;
+     ui->drawzone->setactualTool(LINE);
 }
 void MainWindow::textToolSelected(){
     ui->actualProperty->setCurrentIndex(2);
-    actualTool = TEXT;
+    ui->drawzone->setactualTool(TEXT);
 }
 
 void MainWindow::on_squareButton_clicked()
 {
-    actualTool = RECTANGLE;
+    ui->drawzone->setactualTool(RECTANGLE);
 }
 
 void MainWindow::on_circleButton_clicked()
 {
-    actualTool = CIRCLE;
+    ui->drawzone->setactualTool(CIRCLE);
 }
 
 void MainWindow::on_triangleButton_clicked()
 {
-    actualTool = TRIANGLE;
+    ui->drawzone->setactualTool(TRIANGLE);
 }
 
 void MainWindow::on_pictureButton_clicked()
 {
-    actualTool = IMAGE;
+    ui->drawzone->setactualTool(IMAGE);
 }
 
 void MainWindow::on_moveButton_clicked()
 {
-    actualTool = MOVE;
+    ui->drawzone->setactualTool(MOVE);
 }
 
 void MainWindow::on_rotateButton_clicked()
 {
-    actualTool = ROTATE;
+    ui->drawzone->setactualTool(ROTATE);
+}
+
+void MainWindow::on_cursorButton_clicked()
+{
+    ui->drawzone->setactualTool(NONE);
+}
+
+void MainWindow::on_freeDrawButton_clicked()
+{
+    ui->actualProperty->setCurrentIndex(1);
+    ui->drawzone->setactualTool(FREE);
+}
+
+void MainWindow::on_pointButton_clicked()
+{
+    ui->actualProperty->setCurrentIndex(0);
+    ui->drawzone->setactualTool(POLYGON);
+}
+
+void MainWindow::on_actionZoomPlus_triggered()
+{
+    ui->drawzone->scale(2.0,2.0);
+}
+
+void MainWindow::on_actionZoomMoins_triggered()
+{
+     ui->drawzone->scale(0.5,0.5);
+}
+
+void MainWindow::on_actionExporter_triggered()
+{
+    QMenu exportMenu(this);
+    exportMenu.addAction(new QAction("SVG", this));
+    exportMenu.addAction(new QAction("JPG", this));
+    exportMenu.addAction(new QAction("PNG", this));
+    exportMenu.addAction(new QAction("BMP", this));
+    exportMenu.exec(QCursor::pos());
+}
+
+void MainWindow::on_actionImporter_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty())
+        importFile(fileName);
+}
+
+
+void MainWindow::on_horizontalSlider_2_valueChanged(int value)
+{
+    on_horizontalSlider_valueChanged(value);
+}
+
+void MainWindow::on_horizontalSlider_valueChanged(int value)
+{
+    ui->drawzone->setactualSize(value);
 }
