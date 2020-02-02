@@ -40,14 +40,16 @@ MainWindow::MainWindow(QWidget *parent)
     labIcon->hide();
     labMsg = new QLabel("",statusBar());
 
-    actualTool = NONE;
+    actualTool = CURSOR;
     mouse_coord->x=0;
     mouse_coord->y=0;
     initStatusBar();
 
     ui->drawzone->setactualSize(ui->horizontalSlider->value());
-    ui->drawzone->setactualColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()));
+    ui->drawzone->setactualColor(ui->strokeColorButton2->palette().color(ui->strokeColorButton2->backgroundRole()));
     ui->drawzone->setactualColor2(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()));
+
+    connect(ui->drawzone, SIGNAL(actualToolShowProperty(Tool)),SLOT(actualToolChangeProperty(Tool)));
 
 }
 
@@ -64,12 +66,17 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->circleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
 
     connect(ui->lineButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
+    connect(ui->pointButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
+    connect(ui->freeDrawButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
     connect(ui->textButton, SIGNAL(clicked()),this,SLOT(textToolSelected()));
 
     connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->moveButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->rotateButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->cursorButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
+
+    connect(ui->lineButton, SIGNAL(toggled(bool)),this,SLOT(lineChecked(bool)));
+    connect(ui->freeDrawButton, SIGNAL(toggled(bool)),this,SLOT(lineChecked(bool)));
 }
 
 MainWindow::~MainWindow()
@@ -90,6 +97,26 @@ void MainWindow::initStatusBar()
 
 void MainWindow::showStatusMessage(const QString &msg){
     labMsg->setText(msg);
+}
+
+void MainWindow::actualToolChangeProperty(Tool tool){
+    qDebug() << "Edition des caractéristiques de l'outil !";
+    switch(tool){
+        case LINE:
+            lineChecked(true);
+            ui->actualProperty->setCurrentIndex(0);
+            break;
+        case RECTANGLE:
+            lineChecked(false);
+            ui->actualProperty->setCurrentIndex(0);
+            break;
+        case TEXT:
+            ui->actualProperty->setCurrentIndex(1);
+            break;
+        default:
+            break;
+    }
+
 }
 
 void MainWindow::newFile()
@@ -195,7 +222,7 @@ void MainWindow::shapeToolSelected(){
 }
 
 void MainWindow::noPropertyToolSelected(){
-    ui->actualProperty->setCurrentIndex(3);
+    ui->actualProperty->setCurrentIndex(2);
 }
 
 void MainWindow::helpButtonClicked(){
@@ -225,22 +252,16 @@ void MainWindow::propertyButtonClicked(){
     }
 }
 
-void MainWindow::on_strokeColorButton_clicked()
+void MainWindow::on_strokeColorButton2_clicked()
 {
-    QColor color = QColorDialog::getColor(ui->strokeColorButton->palette().color(ui->strokeColorButton->backgroundRole()), this, "Choisir une couleur");
+    QColor color = QColorDialog::getColor(ui->strokeColorButton2->palette().color(ui->strokeColorButton2->backgroundRole()), this, "Choisir une couleur");
     if( color.isValid() ){
         int r=0, g=0, b=0;
         color.getRgb(&r,&g,&b);
         QString scolor("background-color: rgb(" + QString::number(r) + ", " + QString::number(g) + ", " + QString::number(b) + ");");
-        ui->strokeColorButton->setStyleSheet(scolor);
         ui->strokeColorButton2->setStyleSheet(scolor);
         ui->drawzone->setactualColor(color);
     }
-}
-
-void MainWindow::on_strokeColorButton2_clicked()
-{
-    on_strokeColorButton_clicked();
 }
 
 void MainWindow::on_fillColorButton_clicked()
@@ -256,14 +277,22 @@ void MainWindow::on_fillColorButton_clicked()
 }
 
 void MainWindow::lineToolSelected(){
-    ui->actualProperty->setCurrentIndex(1);
-     ui->drawzone->setactualTool(LINE);
+    ui->actualProperty->setCurrentIndex(0);
 }
 void MainWindow::textToolSelected(){
-    ui->actualProperty->setCurrentIndex(2);
+    ui->actualProperty->setCurrentIndex(1);
     ui->drawzone->setactualTool(TEXT);
 }
 
+void MainWindow::lineChecked(bool checked){
+    if(checked){
+        ui->label_3->setVisible(false);
+        ui->fillColorButton->setVisible(false);
+    }else{
+        ui->label_3->setVisible(true);
+        ui->fillColorButton->setVisible(true);
+    }
+}
 void MainWindow::on_squareButton_clicked()
 {
     ui->drawzone->setactualTool(RECTANGLE);
@@ -296,18 +325,16 @@ void MainWindow::on_rotateButton_clicked()
 
 void MainWindow::on_cursorButton_clicked()
 {
-    ui->drawzone->setactualTool(NONE);
+    ui->drawzone->setactualTool(CURSOR);
 }
 
 void MainWindow::on_freeDrawButton_clicked()
 {
-    ui->actualProperty->setCurrentIndex(1);
     ui->drawzone->setactualTool(FREE);
 }
 
 void MainWindow::on_pointButton_clicked()
 {
-    ui->actualProperty->setCurrentIndex(0);
     ui->drawzone->setactualTool(POLYGON);
 }
 
@@ -338,13 +365,12 @@ void MainWindow::on_actionImporter_triggered()
         importFile(fileName);
 }
 
-
-void MainWindow::on_horizontalSlider_2_valueChanged(int value)
-{
-    on_horizontalSlider_valueChanged(value);
-}
-
 void MainWindow::on_horizontalSlider_valueChanged(int value)
 {
     ui->drawzone->setactualSize(value);
+}
+
+void MainWindow::on_lineButton_clicked()
+{
+     ui->drawzone->setactualTool(LINE);
 }
