@@ -13,7 +13,7 @@ struct Point
    int x, y;
 };
 
-enum Tool { NONE, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE, POLYGON, FREE };
+enum Tool { CURSOR, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE, POLYGON, FREE };
 
 class MainWindow : public QMainWindow
 {
@@ -33,6 +33,10 @@ private slots:
     void openFile();
     bool save();
     bool saveAs();
+    void actualToolChangeProperty(Tool);
+    void changeStrokeColor(QColor);
+    void changeFillColor(QColor);
+    void changeStrokeSize(int);
 
     void dockWidgetInit();
     void propertyWidgetInit();
@@ -45,7 +49,6 @@ private slots:
     void helpButtonClicked();
     void toolButtonClicked();
     void propertyButtonClicked();
-    void on_strokeColorButton_clicked();
     void on_fillColorButton_clicked();
     void on_strokeColorButton2_clicked();
     void on_squareButton_clicked();
@@ -61,10 +64,9 @@ private slots:
     void on_cursorButton_clicked();
     void on_freeDrawButton_clicked();
     void on_pointButton_clicked();
-
-    void on_horizontalSlider_2_valueChanged(int value);
-
     void on_horizontalSlider_valueChanged(int value);
+    void on_lineButton_clicked();
+    void lineChecked(bool checked);
 
 private:
     Ui::MainWindow *ui;

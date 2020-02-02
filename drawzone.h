@@ -7,10 +7,12 @@
 #include <QtGui>
 #include <QWidget>
 #include <QColor>
+#include <QGraphicsDropShadowEffect>
 #include "mainwindow.h"
 
 class drawZone : public QGraphicsView
 {
+    Q_OBJECT;
 public:
     explicit drawZone(QWidget *parent = 0);
     ~drawZone() override;
@@ -20,13 +22,6 @@ public:
     void setactualSize(int);
     void clearScene();
     void saveScene();
-    //-----------------------------------------
-//    QVariant item_to_variant(QGraphicsItem* item);
-//    QGraphicsItem* item_from_variant(QVariant v);
-//    void save_state();
-//    void restore_state();
-
-    //---------------------------------------------
 
 protected:
     void mouseMoveEvent(QMouseEvent*) override;
@@ -53,20 +48,33 @@ private :
     QPointF point_init;
 
     //Pour le dessin à main levée
-    QGraphicsPathItem *pathItem=nullptr;
+    QGraphicsPathItem *pathitem=nullptr;
     QVector<QPainterPath> paths;
     QPainterPath *path=new QPainterPath();
+    QGraphicsEllipseItem *previewPoint=nullptr;
 
     //Pour le dessin polygonal
      QGraphicsPolygonItem *polygon=nullptr;
      QPolygonF *poly=new QPolygonF();
-     QGraphicsEllipseItem *ellipse=nullptr;
+     QGraphicsEllipseItem *actualPoint=nullptr;
      QVector<QPolygonF> polygons;
+
+    //Pour la selection
+     QGraphicsItem *SelItem=nullptr;
+     QGraphicsPathItem* pathItem ;
+     QGraphicsLineItem* lineItem ;
+     QGraphicsPolygonItem* polygonItem ;
+     QGraphicsRectItem* rectItem;
+     QGraphicsEllipseItem* elliItem ;
+     QGraphicsTextItem* textItem;
 
 
 signals:
+    void actualToolShowProperty(Tool);
+    void setStrokeColor(QColor);
+    void setFillColor(QColor);
+    void setStrokeSize(int);
 
-public slots:
 
 };
 
