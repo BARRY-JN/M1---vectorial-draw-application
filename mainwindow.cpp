@@ -142,6 +142,171 @@ void MainWindow::loadFile(const QString &fileName)
         return;
     }
 
+    newFile();
+    QTextStream flux(&file);
+    QString ligne;
+
+    while(! flux.atEnd())
+    {
+        //traitement de la ligne
+        ligne = flux.readLine();
+        qDebug()<<"truc";
+        QStringList word= ligne.split(" ",QString::SkipEmptyParts);
+
+         bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false;
+         bool xSet=false,ySet=false,wSet=false,hSet=false,sSet=false,qaSet=false, qbSet=false, coordStartRead=false,coordEndRead=false,xRead=true,firstPointSet=false;
+        int x=-1,y=-1,w=-1,h=-1,s=-1;
+        QColor qa, qb;
+        QString t;
+        QPolygonF *poly=new QPolygonF();
+        QPainterPath *path=new QPainterPath();
+        QPointF coord;
+/* ______________________________________________________________________________________________________________________________________________________ */
+/* ______________________________________________________________________________________________________________________________________________________ */
+/* ______________________________________________________________________________________________________________________________________________________ */
+
+        //Lecture mot par mot
+         for (auto src : word){
+
+            /*traitement du rectangle et de l'éllipse
+            on fait une succession de test pour savoir
+            quelle propriété de la figure est on en train de lire */
+
+            if(irec||ielli||iline){
+                if(!xSet){
+                    x=src.toInt();
+                    xSet=true;
+                }else{
+                    if(!ySet){
+                        y=src.toInt();
+                        ySet=true;
+                    }else{
+                        if(!wSet){
+                            w=src.toInt();
+                            wSet=true;
+                        }else{
+                            if(!hSet){
+                                h=src.toInt();
+                                hSet=true;
+                            }else{
+                                if(!sSet){
+                                    s=src.toInt();
+                                    sSet=true;
+                                }else{
+                                    if(!qaSet){
+                                            qa.setNamedColor(src);
+                                            qaSet=true;
+                                        }else{
+                                            if(!qbSet){
+                                                qb.setNamedColor(src);
+                                                qbSet=true;
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            /*traitement du tracé libre et du dessin polygonal*/
+            if(ipoly||ipath){
+                if(coordStartRead){
+                    if(xRead){
+                        coord.setX(src.toInt());
+                    }
+                    if(!xRead){
+                        coord.setY(src.toInt());
+                        if(!firstPointSet){
+                            poly->append(coord);
+                            path->moveTo(coord);
+                            firstPointSet=true;
+                        }else{
+                            poly->append(coord);
+                            path->lineTo(coord);
+                        }
+                    }
+                     xRead=!xRead;
+                }
+                if(coordEndRead){
+                    if(!sSet){
+                        s=src.toInt();
+                        sSet=true;
+                    }else{
+                        if(!qaSet){
+                                qa.setNamedColor(src);
+                                qaSet=true;
+                        }else{
+                                if(!qbSet){
+                                    qb.setNamedColor(src);
+                                    qbSet=true;
+                                }
+                        }
+                    }
+                }
+
+                if(src=="{")
+                    coordStartRead=true;
+                if(src=="}"){
+                    coordEndRead=true;
+                    coordStartRead=false;
+                }
+            }
+
+            if(itext){
+                if(!xSet){
+                    x=src.toInt();
+                    xSet=true;
+                }else{
+                    if(!ySet){
+                        y=src.toInt();
+                        ySet=true;
+                    }else{
+                        t.append(src);
+                        t.append(" ");
+                    }
+                }
+            }
+
+            if(src=="rect")
+                irec=true;
+            if(src=="elli")
+                ielli=true;
+            if(src=="path")
+                ipath=true;
+            if(src=="poly")
+                ipoly=true;
+            if(src=="text")
+                itext=true;
+            if(src=="line")
+                iline=true;
+        }
+
+         qDebug()<<x<<" "<<y<<" "<<w<<" "<<h;
+         if(irec){
+             ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
+         }
+         if(ielli){
+             ui->drawzone->getScene()->addEllipse(x,y,w,h,QPen(qa,s),QBrush(qb));
+         }
+         if(ipath){
+             ui->drawzone->getScene()->addPath(*path,QPen(qa, s, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+         }
+         if(ipoly){
+             ui->drawzone->getScene()->addPolygon(*poly,QPen(qa,s),QBrush(qb));
+         }
+         if(iline){
+             ui->drawzone->getScene()->addLine(x,y,w,h,QPen(qa,s));
+         }
+         if(itext){
+             QGraphicsTextItem *qti = ui->drawzone->getScene()->addText(t);
+             qti->setPos(x,y);
+         }
+
+ /* ______________________________________________________________________________________________________________________________________________________ */
+ /* ______________________________________________________________________________________________________________________________________________________ */
+ /* ______________________________________________________________________________________________________________________________________________________ */
+
+    }
     statusBar()->showMessage(tr("Fichier chargé"), 2000);
 }
 
@@ -191,7 +356,7 @@ bool MainWindow::saveFile(const QString &fileName)
     foreach (QGraphicsItem *item, ui->drawzone->getScene()->items()){
         pathItem = dynamic_cast<QGraphicsPathItem*>(item);
         if(pathItem){
-            coord.append("{");
+            coord.append("{ ");
             for(int i=0;i<pathItem->path().elementCount();i++){
                 coord.append(QString::number(pathItem->path().elementAt(i).x)+" "+QString::number(pathItem->path().elementAt(i).y)+" ");
             }
@@ -200,16 +365,16 @@ bool MainWindow::saveFile(const QString &fileName)
         }
         lineItem = dynamic_cast<QGraphicsLineItem*>(item);
         if(lineItem)
-            it.append("line "+QString::number(lineItem->x())+" "+QString::number(lineItem->y())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
+            it.append("line "+QString::number(lineItem->line().x1())+" "+QString::number(lineItem->line().y1())+" "+QString::number(lineItem->line().x2())+" "+QString::number(lineItem->line().y2())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
 
         polygonItem = dynamic_cast<QGraphicsPolygonItem*>(item);
         if(polygonItem){
-            coord.append("{");
+            coord.append("{ ");
             for(int i=0;i<polygonItem->polygon().size();i++){
                 coord.append(QString::number(polygonItem->polygon().value(i).x())+" "+QString::number(polygonItem->polygon().value(i).y())+" ");
             }
             coord.append("}");
-            it.append("polygon "+coord+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
+            it.append("poly "+coord+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
         }
 
         rectItem = dynamic_cast<QGraphicsRectItem*>(item);
@@ -222,7 +387,7 @@ bool MainWindow::saveFile(const QString &fileName)
 
         textItem = dynamic_cast<QGraphicsTextItem*>(item);
         if(textItem)
-            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+ textItem->toPlainText());
+            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+ textItem->toPlainText().simplified());
         coord="";
         it.append("\n");
     }

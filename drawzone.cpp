@@ -337,7 +337,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                          if(elliItem){
                              emit  setStrokeColor(elliItem->pen().color());
                              emit  setStrokeSize(elliItem->pen().width());
-                             emit  setFillColor(rectItem->brush().color());
+                             emit  setFillColor(elliItem->brush().color());
                          }
                         break;
                      }
