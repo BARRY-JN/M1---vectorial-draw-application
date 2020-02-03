@@ -136,6 +136,9 @@
         <property name="renderHints">
          <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::TextAntialiasing</set>
         </property>
+        <property name="rubberBandSelectionMode">
+         <enum>Qt::ContainsItemBoundingRect</enum>
+        </property>
        </widget>
       </widget>
      </widget>

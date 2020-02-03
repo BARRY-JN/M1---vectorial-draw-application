@@ -39,7 +39,7 @@ private :
     QGraphicsPixmapItem *pixmap;
     QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
-    Tool actualTool;
+    Tool actualTool=CURSOR;
     QColor actualColor;
     QColor actualColor2;
     int actualSize;

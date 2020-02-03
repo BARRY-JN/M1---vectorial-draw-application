@@ -214,15 +214,15 @@ bool MainWindow::saveFile(const QString &fileName)
 
         rectItem = dynamic_cast<QGraphicsRectItem*>(item);
         if(rectItem)
-            it.append("rect "+QString::number(rectItem->x())+" "+QString::number(rectItem->y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
+            it.append("rect "+QString::number(rectItem->rect().x())+" "+QString::number(rectItem->rect().y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+ QString::number(rectItem->pen().width())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
 
         elliItem = dynamic_cast<QGraphicsEllipseItem*>(item);
         if(elliItem)
-            it.append("elli "+QString::number(elliItem->x())+" "+QString::number(elliItem->y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
+            it.append("elli "+QString::number(elliItem->rect().x())+" "+QString::number(elliItem->rect().y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+ QString::number(elliItem->pen().width())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
 
         textItem = dynamic_cast<QGraphicsTextItem*>(item);
         if(textItem)
-            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+ textItem->toHtml());
+            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+ textItem->toPlainText());
         coord="";
         it.append("\n");
     }
