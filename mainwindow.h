@@ -25,7 +25,7 @@ public:
     ~MainWindow() override;
     static void setCursorLabelCoord(QMouseEvent*);
     static void leaveDrawZone();
-    void loadFile(const QString &fileName);
+    bool loadFile(const QString &fileName);
     void importFile(const QString &fileName);
     void showStatusMessage(const QString &msg);
 
@@ -67,11 +67,19 @@ private slots:
     void on_lineButton_clicked();
     void lineChecked(bool checked);
 
+    void on_spinBox_valueChanged(int arg1);
+
+    void on_fontComboBox_currentFontChanged(const QFont &f);
+
+    void on_textEdit_textChanged();
+
 private:
     Ui::MainWindow *ui;
     void initStatusBar();
     bool saveFile(const QString &filename);
     void setCurrentFile(const QString &fileName);
+    bool loadImportedFile(const QString &filename);
+    bool saveExportFile(const QString &fileName);
 
     bool isSaved=false;
 

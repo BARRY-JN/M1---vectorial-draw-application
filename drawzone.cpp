@@ -2,7 +2,10 @@
 #include <QMouseEvent>
 #include <QGraphicsSceneMouseEvent>
 #include <QAction>
+#include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
+#include <QPixmap>
 #include <QApplication>
 #include <QColorDialog>
 #include <QGraphicsDropShadowEffect>
@@ -87,6 +90,17 @@ void drawZone::setactualSize(int value){
     }
 }
 
+void drawZone::setactualtextSize(int value){
+    actualtextSize=value;
+}
+
+void drawZone::setactualtextFont(QFont font){
+    actualtextFont=font;
+}
+
+void drawZone::setactualtextContent(QString text){
+    actualtextContent=text;
+}
 
 void drawZone::setactualColor(QColor color){
     actualColor=color;
@@ -148,12 +162,83 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
             scene->removeItem(previewPoint);
         previewPoint=scene->addEllipse(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize, QPen(QColor(Qt::black),2), QColor(Qt::transparent));
     }
+
+    if(actualTool==CIRCLE){
+        if(previewcircle!=nullptr)
+            scene->removeItem(previewcircle);
+        previewcircle = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
+    }
+
+    if(actualTool==LINE){
+        if(previewcircle!=nullptr)
+            scene->removeItem(previewcircle);
+        previewcircle = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor);
+
+        if(PointActuel==1){
+            if(previewline!=nullptr)
+                scene->removeItem(previewline);
+            QPen pen;  // creates a default pen
+            pen.setStyle(Qt::SolidLine);
+            pen.setWidth(actualSize);
+            pen.setBrush(actualColor);
+            pen.setCapStyle(Qt::RoundCap);
+            previewline = scene->addLine(PreviousPoint.x(),PreviousPoint.y(),point.x(),point.y(),pen);
+        }
+    }
+
+    if(actualTool==RECTANGLE){
+        if(previewrectangle!=nullptr)
+            scene->removeItem(previewrectangle);
+        previewrectangle = scene->addRect(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
+    }
+
+    if(actualTool==TRIANGLE){
+        if(previewtriangle!=nullptr)
+            scene->removeItem(previewtriangle);
+        QPolygonF poly;
+        poly << QPointF(point.x()-actualSize, point.y()) << QPointF(point.x()+actualSize, point.y()) << QPointF(point.x(), point.y()-actualSize );
+        previewtriangle = scene->addPolygon(poly,actualColor, actualColor2);
+    }
+
+    if(actualTool==TEXT){
+        if(previewtext!=nullptr)
+            scene->removeItem(previewtext);
+        actualtextFont.setPointSize(actualtextSize);
+        previewtext = scene->addText(actualtextContent, actualtextFont);
+        previewtext->setPos(point);
+
+    }
+
     if(actualTool==CURSOR){
         if(ev->buttons().testFlag(Qt::LeftButton)){
 
         }
     }
 
+}
+
+void drawZone::addpicture(QPixmap pixmap){
+        scene->addPixmap(pixmap);
+        scene->setSceneRect(scene->sceneRect());
+    }
+
+bool drawZone::saveFile(const QString &fileName){
+    qDebug() << __FUNCTION__ <<"sauvegarde";
+
+    QPixmap *tosave = new QPixmap(scene->sceneRect().width(),scene->sceneRect().height());
+    QPainter painter(tosave);
+    scene->setBackgroundBrush(Qt::white);
+    scene->render(&painter);
+
+    painter.end();
+
+
+    if (!fileName.isEmpty())
+    {
+      tosave->save(fileName);
+      return true;
+    }
+    return false;
 }
 
 void drawZone::mouseReleaseEvent(QMouseEvent *event){
@@ -170,6 +255,22 @@ void drawZone::leaveEvent(QEvent * e)
 {
     scene->removeItem(previewPoint);
     previewPoint=nullptr;
+
+    scene->removeItem(previewcircle);
+    previewcircle=nullptr;
+
+    scene->removeItem(previewline);
+    previewline=nullptr;
+
+    scene->removeItem(previewtriangle);
+    previewtriangle=nullptr;
+
+    scene->removeItem(previewtext);
+    previewtext=nullptr;
+
+    scene->removeItem(previewrectangle);
+    previewrectangle=nullptr;
+
     MainWindow::leaveDrawZone();
 }
 
@@ -200,7 +301,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
         qDebug() << x << ", " << y;
         point_init = mapToScene(x, y);
         QPointF point = mapToScene(x, y);
-        QPointF point2;
 
         switch(actualTool){
             case(CIRCLE):
@@ -215,20 +315,26 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             {
                 if(PointActuel==0){
                     QGraphicsEllipseItem *ellipse;
-                    ellipse = scene->addEllipse(point.x(),point.y(),actualSize,actualSize,actualColor, actualColor2);
+                    ellipse = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor);
                     ellipse->setFlag(QGraphicsEllipseItem::ItemIsMovable);
-                    x2=point.x();
-                    y2=point.y();
+                    PreviousPoint=point_init;
                     PointActuel=1;
                     return;
                 }
 
                 if(PointActuel==1){
                     QGraphicsLineItem *line;
-                    line = scene->addLine(x2,y2,point.x(),point.y(),actualColor);
+                    QPen pen;  // creates a default pen
+
+                    pen.setStyle(Qt::SolidLine);
+                    pen.setWidth(actualSize);
+                    pen.setBrush(actualColor);
+                    pen.setCapStyle(Qt::RoundCap);
+
+                    line = scene->addLine(PreviousPoint.x(),PreviousPoint.y(),point.x(),point.y(),pen);
                     line->setFlag(QGraphicsItem::ItemIsSelectable);
                     line->setFlag(QGraphicsEllipseItem::ItemIsMovable);
-                    //PointActuel=0;
+                    PointActuel=0;
                     return;
                 }
                 break;
@@ -274,8 +380,8 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(TEXT):
             {
                 QGraphicsTextItem *text;
-                QFont serifFont("Times", actualSize, QFont::Bold);
-                text = scene->addText(QString("Bonjour !"), QFont(serifFont));
+                actualtextFont.setPointSize(actualtextSize);
+                text = scene->addText(actualtextContent, actualtextFont);
                 text->setPos(point);
                 text->setFlag(QGraphicsItem::ItemIsSelectable);
                 text->setFlag(QGraphicsEllipseItem::ItemIsMovable);

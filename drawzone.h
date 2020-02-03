@@ -20,8 +20,15 @@ public:
     void setactualColor(QColor);
     void setactualColor2(QColor);
     void setactualSize(int);
+    void setactualtextSize(int);
+    void setactualtextFont(QFont);
+    void setactualtextContent(QString);
     void clearScene();
     void saveScene();
+    bool loadFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
+    bool saveAsFile();
+    void addpicture(QPixmap pixmap);
     QGraphicsScene *getScene();
 
 protected:
@@ -39,14 +46,18 @@ private :
     QGraphicsPixmapItem *pixmap;
     QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
-    Tool actualTool=CURSOR;
+    Tool actualTool;
     QColor actualColor;
     QColor actualColor2;
     int actualSize;
+    int actualtextSize;
+    QFont actualtextFont;
+    QString actualtextContent;
     int PointActuel=0;
     int count=0;
     bool first=true;
     QPointF point_init;
+    QPainter *painter;
 
     //Pour le dessin à main levée
     QGraphicsPathItem *pathitem=nullptr;
@@ -68,6 +79,15 @@ private :
      QGraphicsRectItem* rectItem;
      QGraphicsEllipseItem* elliItem ;
      QGraphicsTextItem* textItem;
+
+     //Pour les previews des différentes formes
+     QGraphicsEllipseItem *previewcircle=nullptr;
+     QGraphicsLineItem* previewline=nullptr ;
+     QGraphicsPolygonItem* previewtriangle=nullptr ;
+     QGraphicsRectItem* previewrectangle=nullptr;
+     QGraphicsTextItem* previewtext=nullptr;
+
+     QPointF PreviousPoint;
 
 
 signals:

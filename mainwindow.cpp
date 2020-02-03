@@ -3,6 +3,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QAction>
+#include <QImage>
 #include <QMenu>
 #include <QMessageBox>
 #include "ui_mainwindow.h"
@@ -121,6 +122,7 @@ void MainWindow::actualToolChangeProperty(Tool tool){
 
 void MainWindow::newFile()
 {
+    isSaved = false;
     ui->drawzone->clearScene();
     ui->drawzone->show();
 }
@@ -132,14 +134,35 @@ void MainWindow::openFile()
         loadFile(fileName);
 }
 
-void MainWindow::loadFile(const QString &fileName)
+static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
+{
+    static bool firstDialog = true;
+
+    if (firstDialog) {
+        firstDialog = false;
+        const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+        dialog.setDirectory(picturesLocations.isEmpty() ? QDir::currentPath() : picturesLocations.last());
+    }
+    QStringList mimeTypeFilters;
+       const QByteArrayList supportedMimeTypes = acceptMode == QFileDialog::AcceptOpen
+           ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
+       for (const QByteArray &mimeTypeName : supportedMimeTypes)
+           mimeTypeFilters.append(mimeTypeName);
+       mimeTypeFilters.sort();
+       dialog.setMimeTypeFilters(mimeTypeFilters);
+       dialog.selectMimeTypeFilter("image/jpeg");
+       if (acceptMode == QFileDialog::AcceptSave)
+           dialog.setDefaultSuffix("jpg");
+}
+
+bool MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(QDir::toNativeSeparators(fileName), file.errorString()));
-        return;
+        return false;
     }
 
     newFile();
@@ -308,6 +331,7 @@ void MainWindow::loadFile(const QString &fileName)
 
     }
     statusBar()->showMessage(tr("Fichier chargé"), 2000);
+    return true;
 }
 
 void MainWindow::importFile(const QString &fileName)
@@ -335,12 +359,13 @@ bool MainWindow::save()
 bool MainWindow::saveAs()
 {
     QFileDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    if (dialog.exec() != QDialog::Accepted)
-        return false;
-    return saveFile(dialog.selectedFiles().first());
+        dialog.setWindowModality(Qt::WindowModal);
+        dialog.setAcceptMode(QFileDialog::AcceptSave);
+        if (dialog.exec() != QDialog::Accepted)
+            return false;
+        return saveFile(dialog.selectedFiles().first());
 }
+
 
 bool MainWindow::saveFile(const QString &fileName)
 {
@@ -550,19 +575,53 @@ void MainWindow::on_actionZoomMoins_triggered()
 
 void MainWindow::on_actionExporter_triggered()
 {
-    QMenu exportMenu(this);
-    exportMenu.addAction(new QAction("SVG", this));
-    exportMenu.addAction(new QAction("JPG", this));
-    exportMenu.addAction(new QAction("PNG", this));
-    exportMenu.addAction(new QAction("BMP", this));
-    exportMenu.exec(QCursor::pos());
+    QFileDialog dialog(this);
+   dialog.setWindowModality(Qt::WindowModal);
+   dialog.setAcceptMode(QFileDialog::AcceptSave);
+   initializeImageFileDialog(dialog, QFileDialog::AcceptSave);
+   while (dialog.exec() == QDialog::Accepted && !saveExportFile(dialog.selectedFiles().first())) {}
+}
+
+bool MainWindow::saveExportFile(const QString &fileName){
+    qDebug() << __FUNCTION__ <<currentFile<<"save basique";
+        if(ui->drawzone->saveFile(fileName)){
+            setCurrentFile(fileName);
+            isSaved = true;
+            return true;
+        }else{
+            return false;
+        }
 }
 
 void MainWindow::on_actionImporter_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty())
-        importFile(fileName);
+    if(ui->drawzone->isHidden()){
+                ui->drawzone->show();
+        }
+
+        isSaved = false;
+        QFileDialog dialog(this, tr("Open File"));
+        initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
+        while (dialog.exec() == QDialog::Accepted && !loadImportedFile(dialog.selectedFiles().first())) {}
+}
+
+bool MainWindow::loadImportedFile(const QString &fileName){
+
+    QPixmap pixm;
+    pixm.load(fileName);
+    if (pixm.isNull()){
+        QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
+                                 tr("Cannot load %1: %2")
+                                 .arg(QDir::toNativeSeparators(fileName), "Not a picture"));
+        return false;
+
+    }
+    else{
+        //ui->drawzone->clearScene();
+        ui->drawzone->addpicture(pixm);
+        setCurrentFile(fileName);
+        return true;
+    }
 }
 
 void MainWindow::on_horizontalSlider_valueChanged(int value)
@@ -589,4 +648,19 @@ void MainWindow::changeFillColor(QColor color){
 }
 void MainWindow::changeStrokeSize(int value){
     ui->horizontalSlider->setValue(value);
+}
+
+void MainWindow::on_spinBox_valueChanged(int arg1)
+{
+    ui->drawzone->setactualtextSize(arg1);
+}
+
+void MainWindow::on_fontComboBox_currentFontChanged(const QFont &f)
+{
+     ui->drawzone->setactualtextFont(f);
+}
+
+void MainWindow::on_textEdit_textChanged()
+{
+    ui->drawzone->setactualtextContent(ui->textEdit->toPlainText());
 }
