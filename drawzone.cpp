@@ -39,6 +39,10 @@ drawZone::~drawZone(){
     delete path;
 }
 
+QGraphicsScene* drawZone::getScene(){
+    return scene;
+}
+
 void drawZone::setactualTool(Tool tool){
     setCursor(Qt::ArrowCursor);
     //Test sur l'outil précedemment sélectionné
@@ -143,6 +147,11 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
         if(previewPoint!=nullptr)
             scene->removeItem(previewPoint);
         previewPoint=scene->addEllipse(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize, QPen(QColor(Qt::black),2), QColor(Qt::transparent));
+    }
+    if(actualTool==CURSOR){
+        if(ev->buttons().testFlag(Qt::LeftButton)){
+
+        }
     }
 
 }
@@ -276,7 +285,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             {
                 bool somethingSelected=false;
                 QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
-                effect->setBlurRadius(50);
+                effect->setBlurRadius(10);
 
                 foreach (QGraphicsItem *item, scene->items()) {
                     if(item->contains(QPointF(point.x(),point.y()))){

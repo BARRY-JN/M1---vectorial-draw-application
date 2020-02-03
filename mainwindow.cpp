@@ -73,8 +73,6 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->textButton, SIGNAL(clicked()),this,SLOT(textToolSelected()));
 
     connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
-    connect(ui->moveButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
-    connect(ui->rotateButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
     connect(ui->cursorButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
 
     connect(ui->lineButton, SIGNAL(toggled(bool)),this,SLOT(lineChecked(bool)));
@@ -189,6 +187,51 @@ bool MainWindow::saveFile(const QString &fileName)
                                   file.errorString()));
         return false;
     }
+    QString it, coord;
+    foreach (QGraphicsItem *item, ui->drawzone->getScene()->items()){
+        pathItem = dynamic_cast<QGraphicsPathItem*>(item);
+        if(pathItem){
+            coord.append("{");
+            for(int i=0;i<pathItem->path().elementCount();i++){
+                coord.append(QString::number(pathItem->path().elementAt(i).x)+" "+QString::number(pathItem->path().elementAt(i).y)+" ");
+            }
+            coord.append("}");
+            it.append("path "+coord+" "+QString::number(pathItem->pen().width())+" "+pathItem->pen().color().name());
+        }
+        lineItem = dynamic_cast<QGraphicsLineItem*>(item);
+        if(lineItem)
+            it.append("line "+QString::number(lineItem->x())+" "+QString::number(lineItem->y())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
+
+        polygonItem = dynamic_cast<QGraphicsPolygonItem*>(item);
+        if(polygonItem){
+            coord.append("{");
+            for(int i=0;i<polygonItem->polygon().size();i++){
+                coord.append(QString::number(polygonItem->polygon().value(i).x())+" "+QString::number(polygonItem->polygon().value(i).y())+" ");
+            }
+            coord.append("}");
+            it.append("polygon "+coord+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
+        }
+
+        rectItem = dynamic_cast<QGraphicsRectItem*>(item);
+        if(rectItem)
+            it.append("rect "+QString::number(rectItem->x())+" "+QString::number(rectItem->y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
+
+        elliItem = dynamic_cast<QGraphicsEllipseItem*>(item);
+        if(elliItem)
+            it.append("elli "+QString::number(elliItem->x())+" "+QString::number(elliItem->y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
+
+        textItem = dynamic_cast<QGraphicsTextItem*>(item);
+        if(textItem)
+            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+ textItem->toHtml());
+        coord="";
+        it.append("\n");
+    }
+
+    QTextStream outputStream(&file);
+    outputStream << it;
+    file.close();
+
+    it="";
 
     showStatusMessage("File saved");
     return true;
@@ -313,16 +356,6 @@ void MainWindow::on_triangleButton_clicked()
 void MainWindow::on_pictureButton_clicked()
 {
     ui->drawzone->setactualTool(IMAGE);
-}
-
-void MainWindow::on_moveButton_clicked()
-{
-    ui->drawzone->setactualTool(MOVE);
-}
-
-void MainWindow::on_rotateButton_clicked()
-{
-    ui->drawzone->setactualTool(ROTATE);
 }
 
 void MainWindow::on_cursorButton_clicked()

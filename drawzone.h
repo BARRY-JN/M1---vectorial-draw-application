@@ -22,6 +22,7 @@ public:
     void setactualSize(int);
     void clearScene();
     void saveScene();
+    QGraphicsScene *getScene();
 
 protected:
     void mouseMoveEvent(QMouseEvent*) override;

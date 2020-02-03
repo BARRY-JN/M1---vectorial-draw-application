@@ -178,13 +178,13 @@
    <addaction name="actionExporter"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
-   <addaction name="actionOutils"/>
-   <addaction name="actionAide"/>
-   <addaction name="actionProprietes"/>
-   <addaction name="separator"/>
-   <addaction name="separator"/>
    <addaction name="actionZoomPlus"/>
    <addaction name="actionZoomMoins"/>
+   <addaction name="separator"/>
+   <addaction name="actionOutils"/>
+   <addaction name="actionProprietes"/>
+   <addaction name="actionAide"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QDockWidget" name="toolWidget">
    <property name="sizePolicy">
@@ -239,16 +239,19 @@
        <layout class="QGridLayout" name="gridLayout_9">
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="4" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout">
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QToolButton" name="moveButton">
+             <widget class="QToolButton" name="lineButton">
+              <property name="focusPolicy">
+               <enum>Qt::TabFocus</enum>
+              </property>
               <property name="text">
                <string>...</string>
               </property>
               <property name="icon">
                <iconset resource="ressources.qrc">
-                <normaloff>:/Icons/ressources/move.png</normaloff>:/Icons/ressources/move.png</iconset>
+                <normaloff>:/Icons/ressources/draw_line.png</normaloff>:/Icons/ressources/draw_line.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -265,30 +268,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="rotateButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset resource="ressources.qrc">
-                <normaloff>:/Icons/ressources/transform_rotate.png</normaloff>:/Icons/ressources/transform_rotate.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_4">
+             <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -450,6 +430,72 @@
             </item>
            </layout>
           </item>
+          <item row="3" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QToolButton" name="textButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="ressources.qrc">
+                <normaloff>:/Icons/ressources/Text2.png</normaloff>:/Icons/ressources/Text2.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="pictureButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="ressources.qrc">
+                <normaloff>:/Icons/ressources/picture.png</normaloff>:/Icons/ressources/picture.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
           <item row="0" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
@@ -519,115 +565,6 @@
                <bool>true</bool>
               </property>
              </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QToolButton" name="textButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset resource="ressources.qrc">
-                <normaloff>:/Icons/ressources/Text2.png</normaloff>:/Icons/ressources/Text2.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="pictureButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset resource="ressources.qrc">
-                <normaloff>:/Icons/ressources/picture.png</normaloff>:/Icons/ressources/picture.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QToolButton" name="lineButton">
-              <property name="focusPolicy">
-               <enum>Qt::TabFocus</enum>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset resource="ressources.qrc">
-                <normaloff>:/Icons/ressources/draw_line.png</normaloff>:/Icons/ressources/draw_line.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>32</width>
-                <height>32</height>
-               </size>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>

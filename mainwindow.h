@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QGraphicsItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -13,7 +14,7 @@ struct Point
    int x, y;
 };
 
-enum Tool { CURSOR, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE, POLYGON, FREE };
+enum Tool { CURSOR, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, POLYGON, FREE };
 
 class MainWindow : public QMainWindow
 {
@@ -55,8 +56,6 @@ private slots:
     void on_circleButton_clicked();
     void on_triangleButton_clicked();
     void on_pictureButton_clicked();
-    void on_moveButton_clicked();
-    void on_rotateButton_clicked();
     void on_actionZoomPlus_triggered();
     void on_actionZoomMoins_triggered();
     void on_actionExporter_triggered();
@@ -77,5 +76,13 @@ private:
     bool isSaved=false;
 
     QString currentFile;
+
+    //Pour la sauvegarde
+    QGraphicsPathItem* pathItem ;
+    QGraphicsLineItem* lineItem ;
+    QGraphicsPolygonItem* polygonItem ;
+    QGraphicsRectItem* rectItem;
+    QGraphicsEllipseItem* elliItem ;
+    QGraphicsTextItem* textItem;
 };
 #endif // MAINWINDOW_H
