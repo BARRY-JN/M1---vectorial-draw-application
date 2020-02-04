@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QGraphicsItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -13,7 +14,7 @@ struct Point
    int x, y;
 };
 
-enum Tool { NONE, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, MOVE, ROTATE, POLYGON, FREE };
+enum Tool { CURSOR, LINE, RECTANGLE, CIRCLE, TRIANGLE, TEXT, IMAGE, POLYGON, FREE };
 
 class MainWindow : public QMainWindow
 {
@@ -24,7 +25,7 @@ public:
     ~MainWindow() override;
     static void setCursorLabelCoord(QMouseEvent*);
     static void leaveDrawZone();
-    void loadFile(const QString &fileName);
+    bool loadFile(const QString &fileName);
     void importFile(const QString &fileName);
     void showStatusMessage(const QString &msg);
 
@@ -33,6 +34,10 @@ private slots:
     void openFile();
     bool save();
     bool saveAs();
+    void actualToolChangeProperty(Tool);
+    void changeStrokeColor(QColor);
+    void changeFillColor(QColor);
+    void changeStrokeSize(int);
 
     void dockWidgetInit();
     void propertyWidgetInit();
@@ -45,15 +50,12 @@ private slots:
     void helpButtonClicked();
     void toolButtonClicked();
     void propertyButtonClicked();
-    void on_strokeColorButton_clicked();
     void on_fillColorButton_clicked();
     void on_strokeColorButton2_clicked();
     void on_squareButton_clicked();
     void on_circleButton_clicked();
     void on_triangleButton_clicked();
     void on_pictureButton_clicked();
-    void on_moveButton_clicked();
-    void on_rotateButton_clicked();
     void on_actionZoomPlus_triggered();
     void on_actionZoomMoins_triggered();
     void on_actionExporter_triggered();
@@ -61,15 +63,34 @@ private slots:
     void on_cursorButton_clicked();
     void on_freeDrawButton_clicked();
     void on_pointButton_clicked();
+    void on_horizontalSlider_valueChanged(int value);
+    void on_lineButton_clicked();
+    void lineChecked(bool checked);
+
+    void on_spinBox_valueChanged(int arg1);
+
+    void on_fontComboBox_currentFontChanged(const QFont &f);
+
+    void on_textEdit_textChanged();
 
 private:
     Ui::MainWindow *ui;
     void initStatusBar();
     bool saveFile(const QString &filename);
     void setCurrentFile(const QString &fileName);
+    bool loadImportedFile(const QString &filename);
+    bool saveExportFile(const QString &fileName);
 
     bool isSaved=false;
 
     QString currentFile;
+
+    //Pour la sauvegarde
+    QGraphicsPathItem* pathItem ;
+    QGraphicsLineItem* lineItem ;
+    QGraphicsPolygonItem* polygonItem ;
+    QGraphicsRectItem* rectItem;
+    QGraphicsEllipseItem* elliItem ;
+    QGraphicsTextItem* textItem;
 };
 #endif // MAINWINDOW_H
