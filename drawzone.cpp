@@ -144,7 +144,6 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
         if(ev->buttons().testFlag(Qt::LeftButton)){
             if(count%4==0){
                 path->lineTo(point);
-
                 /*
                 On efface le précédent tracé puisqu'un nouveau point a été rajouté
                 */
@@ -441,6 +440,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                          initX=point.x()-item->x();
                          initY=point.y()-item->y();
 
+
                          //Pour détecter le type de l'item sélectionné et afficher les caractéristiques correspondantes
                          pathItem = dynamic_cast<QGraphicsPathItem*>(item);
                          lineItem = dynamic_cast<QGraphicsLineItem*>(item);
@@ -490,7 +490,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                         break;
                      }
                 }
-
 
                 if(!somethingSelected)
                     if(SelItem!=nullptr){
