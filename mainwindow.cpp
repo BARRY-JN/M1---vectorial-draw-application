@@ -82,6 +82,10 @@ void MainWindow::propertyWidgetInit(){
 
 MainWindow::~MainWindow()
 {
+    delete mouse_coord;
+    delete labMouseCoord;
+    delete labIcon;
+    delete labMsg;
     delete ui;
 }
 

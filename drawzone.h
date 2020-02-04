@@ -37,6 +37,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void leaveEvent(QEvent*) override;
+    void keyPressEvent( QKeyEvent*) override;
     void showcontextmenu();
 
 private :
@@ -81,6 +82,14 @@ private :
      QGraphicsEllipseItem* elliItem ;
      QGraphicsTextItem* textItem;
 
+     //pour le deplacement
+     int initX,initY;
+
+     //pour la rotation
+     bool centerPointSet=false;
+     bool doRotate=false;
+     int angle=0;
+
      //Pour les previews des différentes formes
      QGraphicsEllipseItem *previewcircle=nullptr;
      QGraphicsLineItem* previewline=nullptr ;
@@ -89,7 +98,6 @@ private :
      QGraphicsTextItem* previewtext=nullptr;
 
      QPointF PreviousPoint;
-     QPointF oldPosition;
 
 
 signals:
