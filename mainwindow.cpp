@@ -125,6 +125,7 @@ void MainWindow::newFile()
     isSaved = false;
     ui->drawzone->clearScene();
     ui->drawzone->show();
+    ui->drawzone->selectNothing();
 }
 
 void MainWindow::openFile()

@@ -211,6 +211,14 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
 
     if(actualTool==CURSOR){
         if(ev->buttons().testFlag(Qt::LeftButton)){
+            if(SelItem){
+                QPointF pos;
+                pos.setX(oldPosition.x()-point.x());
+                pos.setY(oldPosition.y()-point.y());
+                SelItem->setPos(point);
+                qDebug()<<"pos = "<<pos;
+                qDebug()<<"old = "<<oldPosition;
+            }
 
         }
     }
@@ -307,8 +315,10 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             {
                 QGraphicsEllipseItem *circle;
                 circle = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
-                circle->setFlag(QGraphicsItem::ItemIsSelectable);
+                circle->setFlag(QGraphicsEllipseItem::ItemIsSelectable);
                 circle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+                 circle->setAcceptDrops(true);
+
                 break;
             }
             case(LINE):
@@ -332,8 +342,8 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     pen.setCapStyle(Qt::RoundCap);
 
                     line = scene->addLine(PreviousPoint.x(),PreviousPoint.y(),point.x(),point.y(),pen);
-                    line->setFlag(QGraphicsItem::ItemIsSelectable);
-                    line->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+                    line->setFlag(QGraphicsLineItem::ItemIsSelectable);
+                    line->setFlag(QGraphicsLineItem::ItemIsMovable);
                     PointActuel=0;
                     return;
                 }
@@ -360,9 +370,11 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(RECTANGLE):
             {
                 QGraphicsRectItem *rectangle;
-                rectangle = scene->addRect(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
-                rectangle->setFlag(QGraphicsItem::ItemIsSelectable);
-                rectangle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+                //rectangle = scene->addRect(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
+                rectangle = scene->addRect(0,0,actualSize,actualSize,actualColor, actualColor2);
+                rectangle->setFlag(QGraphicsRectItem::ItemIsSelectable);
+                rectangle->setFlag(QGraphicsRectItem::ItemIsMovable);
+                rectangle->setPos(point);
                 break;
             }
 
@@ -372,8 +384,8 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 QPolygonF poly;
                 poly << QPointF(point.x()-actualSize, point.y()) << QPointF(point.x()+actualSize, point.y()) << QPointF(point.x(), point.y()-actualSize );
                 polygon=scene->addPolygon(poly,actualColor, actualColor2);
-                polygon->setFlag(QGraphicsItem::ItemIsSelectable);
-                polygon->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+                polygon->setFlag(QGraphicsPolygonItem::ItemIsSelectable);
+                polygon->setFlag(QGraphicsPolygonItem::ItemIsMovable);
                 break;
             }
 
@@ -383,8 +395,9 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 actualtextFont.setPointSize(actualtextSize);
                 text = scene->addText(actualtextContent, actualtextFont);
                 text->setPos(point);
-                text->setFlag(QGraphicsItem::ItemIsSelectable);
-                text->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+                text->setFlag(QGraphicsTextItem::ItemIsSelectable);
+                text->setFlag(QGraphicsTextItem::ItemIsMovable);
+                text->setFlag(QGraphicsTextItem::ItemIsFocusable);
                 break;
             }
             case(CURSOR):
@@ -394,17 +407,20 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 effect->setBlurRadius(10);
 
                 foreach (QGraphicsItem *item, scene->items()) {
-                    if(item->contains(QPointF(point.x(),point.y()))){
+                    if(item->contains(item->mapFromScene(QPointF(point.x(),point.y())))){
+                        qDebug()<<"OUI";
                         somethingSelected=true;
                          if(SelItem!=nullptr){
                              SelItem->setGraphicsEffect(0);
                          }
-                         SelItem=item;
+                         SelItem=item; 
                          item->setGraphicsEffect(effect);
 
                          //Pour détecter le type de l'item sélectionné et afficher les caractéristiques correspondantes
                          pathItem = dynamic_cast<QGraphicsPathItem*>(item);
                          lineItem = dynamic_cast<QGraphicsLineItem*>(item);
+
+                         //affiche les caractéristiques de l'outil sélectionné
                          if(pathItem||lineItem)
                              emit actualToolShowProperty(LINE);
 
@@ -418,6 +434,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
                          if(textItem)
                              emit actualToolShowProperty(TEXT);
+
 
                          if(pathItem){
                              emit  setStrokeColor(pathItem->pen().color());
@@ -445,6 +462,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                              emit  setStrokeSize(elliItem->pen().width());
                              emit  setFillColor(elliItem->brush().color());
                          }
+                         oldPosition = SelItem->pos();
                         break;
                      }
                 }
@@ -474,4 +492,8 @@ void drawZone::showcontextmenu()
     menu.addAction(new QAction("Coller", this));
     menu.addAction(new QAction("Supprimer", this));
     menu.exec(QCursor::pos());
+}
+
+void drawZone::selectNothing(){
+    SelItem=nullptr;
 }

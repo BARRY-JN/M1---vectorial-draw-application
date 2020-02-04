@@ -30,6 +30,7 @@ public:
     bool saveAsFile();
     void addpicture(QPixmap pixmap);
     QGraphicsScene *getScene();
+    void selectNothing();
 
 protected:
     void mouseMoveEvent(QMouseEvent*) override;
@@ -88,6 +89,7 @@ private :
      QGraphicsTextItem* previewtext=nullptr;
 
      QPointF PreviousPoint;
+     QPointF oldPosition;
 
 
 signals:
