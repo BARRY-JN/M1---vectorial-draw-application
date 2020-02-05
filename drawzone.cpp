@@ -130,13 +130,6 @@ void drawZone::setactualColor2(QColor color){
 
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
-
-    //QPointF point = mapToScene(ev->x(), ev->y());
-    int x,y;
-    x = ev->x();
-    y = ev->y();
-    //qDebug() << x << ", " << y;
-    //QPointF point = mapToScene(x, y);
     QPointF point = mapToScene(ev->pos());
     MainWindow::setCursorLabelCoord(ev);
 
@@ -209,16 +202,18 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
     if(actualTool==CURSOR){
         if(SelItem){
             if(ev->buttons().testFlag(Qt::LeftButton)){
-                    //int x= SelItem->shape().boundingRect().x();
-                    //int y= SelItem->shape().boundingRect().y();
-                    //SelItem->setPos(point.x()-x-w/2, point.y()-y-h/2);
-                    SelItem->setPos(point.x()-initX,point.y()-initY);
+                //int x= SelItem->shape().boundingRect().x();
+                //int y= SelItem->shape().boundingRect().y();
+                //SelItem->setPos(point.x()-x-w/2, point.y()-y-h/2);
+                SelItem->setPos(point.x()-initX,point.y()-initY);
 
             }
             if(doRotate){
-                int a1 = SelItem->shape().boundingRect().x()-point.x();
-                int a2 = SelItem->shape().boundingRect().y()-point.y();
-                SelItem->setRotation(atan2(a1,a2) * -180/M_PI);
+                //int a1 = SelItem->shape().boundingRect().x()-point.x();
+                int a1 = SelItem->boundingRect().x()-point.x();
+                int a2 = SelItem->boundingRect().y()-point.y();
+                //int a2 = SelItem->shape().boundingRect().y()-point.y();
+                SelItem-> setRotation(atan2(a1,a2) * -180/M_PI);
             }
         }
     }
@@ -229,11 +224,7 @@ void drawZone::keyPressEvent( QKeyEvent *ev){
     if(SelItem){
         if(ev->key() == Qt::Key_R ){
             if(!centerPointSet){
-                int x= SelItem->shape().boundingRect().x();
-                int y= SelItem->shape().boundingRect().y();
-                int w= SelItem->shape().boundingRect().width();
-                int h= SelItem->shape().boundingRect().height();
-                SelItem->setTransformOriginPoint(x+w/2,y+h/2);
+                SelItem->setTransformOriginPoint(SelItem->boundingRect().center());
                 centerPointSet=true;
             }
             doRotate=!doRotate;
@@ -320,10 +311,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
     case Qt::LeftButton :
     {
-        //PointActuel=0;
-        int x,y,x2,y2;
-        x2=0;
-        y2=0;
+        int x,y;
         x = ev->x();
         y = ev->y();
         qDebug() << x << ", " << y;
@@ -337,6 +325,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 circle->setFlag(QGraphicsEllipseItem::ItemIsSelectable);
                 circle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                 circle->setAcceptDrops(true);
+                delete circle;
                 //circle->setPos(point.x()-(actualSize/2),point.y()-(actualSize/2));
 
                 break;
@@ -349,6 +338,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     ellipse->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                     PreviousPoint=point;
                     PointActuel=1;
+                    delete ellipse;
                     return;
                 }
 
@@ -365,6 +355,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     line->setFlag(QGraphicsLineItem::ItemIsSelectable);
                     line->setFlag(QGraphicsLineItem::ItemIsMovable);
                     PointActuel=0;
+                    delete line;
                     return;
                 }
                 break;
@@ -381,7 +372,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 }
                 poly->append(point);
                 //polygon->setPolygon(*poly);
-                polygon=scene->addPolygon(*poly,QPen(actualColor,actualSize),actualColor2);
+                polygon=scene->addPolygon(*poly,QPen(actualColor,actualSize,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),actualColor2);
                 actualPoint=scene->addEllipse(point.x()-(actualSize+5)/2,point.y()-(actualSize+5)/2,actualSize+10,actualSize+10, QColor(Qt::red), QColor(Qt::red));
 
                 break;
@@ -394,7 +385,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 rectangle = scene->addRect(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize,actualColor, actualColor2);
                 rectangle->setFlag(QGraphicsRectItem::ItemIsSelectable);
                 rectangle->setFlag(QGraphicsRectItem::ItemIsMovable);
-                //rectangle->setPos(point);
+                delete rectangle;
                 break;
             }
 
@@ -407,6 +398,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 polygon=scene->addPolygon(poly,actualColor, actualColor2);
                 polygon->setFlag(QGraphicsPolygonItem::ItemIsSelectable);
                 polygon->setFlag(QGraphicsPolygonItem::ItemIsMovable);
+                delete polygon;
                 break;
             }
 
@@ -419,6 +411,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 text->setFlag(QGraphicsTextItem::ItemIsSelectable);
                 text->setFlag(QGraphicsTextItem::ItemIsMovable);
                 text->setFlag(QGraphicsTextItem::ItemIsFocusable);
+                delete text;
                 break;
             }
             case(CURSOR):
@@ -429,11 +422,11 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
                 foreach (QGraphicsItem *item, scene->items()) {
                     if(item->contains(item->mapFromScene(QPointF(point.x(),point.y())))){
-                        qDebug()<<"OUI";
                         somethingSelected=true;
                          if(SelItem!=nullptr){
                              centerPointSet=false;
                              SelItem->setGraphicsEffect(0);
+                             qDebug()<<"Changement d'objet sélectionné";
                          }
                          SelItem=item; 
                          item->setGraphicsEffect(effect);
@@ -496,8 +489,10 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                         SelItem->setGraphicsEffect(0);
                         SelItem=nullptr;
                         doRotate=false;
+                        centerPointSet=false;
                     }
                 break;
+                delete effect;
             }
             default:
             break;
@@ -520,57 +515,46 @@ void drawZone::showcontextmenu()
 
 void drawZone::selectNothing(){
     SelItem=nullptr;
+    centerPointSet=false;
 }
 
 drawZone::~drawZone(){
-    delete scene;
-    delete rectangle;
-    delete text;
-    delete line;
-    delete pixmap;
-    delete simpletext;
-    delete painter;
-    delete pathitem;
-    delete path;
-    delete previewPoint;
-    delete polygon;
-    delete poly;
-    delete actualPoint;
-    delete SelItem;
-    delete pathItem;
-    delete lineItem;
-    delete polygonItem;
-    delete rectItem;
-    delete elliItem;
-    delete textItem;
-    delete previewcircle;
-    delete previewline;
-    delete previewtriangle;
-    delete previewrectangle;
-    delete previewtext;
-    scene=nullptr;
-    text=nullptr;
-    line=nullptr;
-    pixmap=nullptr;
-    simpletext=nullptr;
-    painter=nullptr;
-    pathitem=nullptr;
-    path=nullptr;
-    previewPoint=nullptr;
-    polygon=nullptr;
-    poly=nullptr;
-    actualPoint=nullptr;
-    SelItem=nullptr;
-    pathItem=nullptr;
-    lineItem=nullptr;
-    polygonItem=nullptr;
-    rectItem=nullptr;
-    elliItem=nullptr;
-    textItem=nullptr;
-    previewcircle=nullptr;
-    previewline=nullptr;
-    previewtriangle=nullptr;
-    previewrectangle=nullptr;
-    previewtext=nullptr;
-
+    if(painter)
+        delete painter;
+    if(pathitem)
+        delete pathitem;
+    if(path)
+        delete path;
+    if(previewPoint)
+        delete previewPoint;
+    if(polygon)
+        delete polygon;
+    if(poly)
+        delete poly;
+    if(actualPoint)
+        delete actualPoint;
+    if(SelItem)
+        delete SelItem;
+    if(pathItem)
+        delete pathItem;
+    if(lineItem)
+        delete lineItem;
+    if(polygonItem)
+        delete polygonItem;
+    if(rectItem)
+        delete rectItem;
+    if(elliItem)
+        delete elliItem;
+    if(textItem)
+        delete textItem;
+    if(previewcircle)
+        delete previewcircle;
+    if(previewline)
+        delete previewline;
+    if(previewtriangle)
+        delete previewtriangle;
+    if(previewrectangle)
+        delete previewrectangle;
+    if(previewtext)
+        delete previewtext;
 }

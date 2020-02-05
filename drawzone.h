@@ -42,11 +42,6 @@ protected:
 
 private :
     QGraphicsScene *scene;
-    QGraphicsRectItem *rectangle;
-    QGraphicsTextItem *text;
-    QGraphicsLineItem *line;
-    QGraphicsPixmapItem *pixmap;
-    QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
     Tool actualTool;
     QColor actualColor;

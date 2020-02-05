@@ -130,6 +130,7 @@ void MainWindow::newFile()
     ui->drawzone->clearScene();
     ui->drawzone->show();
     ui->drawzone->selectNothing();
+    ui->drawzone->setactualTool(CURSOR);
 }
 
 void MainWindow::openFile()
@@ -309,7 +310,6 @@ bool MainWindow::loadFile(const QString &fileName)
                 iline=true;
         }
 
-         qDebug()<<x<<" "<<y<<" "<<w<<" "<<h;
          if(irec){
              ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
          }
