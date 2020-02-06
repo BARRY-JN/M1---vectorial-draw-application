@@ -302,8 +302,6 @@ void drawZone::clearScene()
 
 void drawZone::mousePressEvent(QMouseEvent *ev)
 {
-    qDebug() << __FUNCTION__ << ev->x() << ev->y()
-    << ev->button();
     switch(ev->button()) {
     case Qt::RightButton :
         showcontextmenu();
@@ -325,7 +323,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 circle->setFlag(QGraphicsEllipseItem::ItemIsSelectable);
                 circle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                 circle->setAcceptDrops(true);
-                delete circle;
                 //circle->setPos(point.x()-(actualSize/2),point.y()-(actualSize/2));
 
                 break;
@@ -338,7 +335,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     ellipse->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                     PreviousPoint=point;
                     PointActuel=1;
-                    delete ellipse;
                     return;
                 }
 
@@ -355,7 +351,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     line->setFlag(QGraphicsLineItem::ItemIsSelectable);
                     line->setFlag(QGraphicsLineItem::ItemIsMovable);
                     PointActuel=0;
-                    delete line;
                     return;
                 }
                 break;
@@ -385,7 +380,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 rectangle = scene->addRect(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize,actualColor, actualColor2);
                 rectangle->setFlag(QGraphicsRectItem::ItemIsSelectable);
                 rectangle->setFlag(QGraphicsRectItem::ItemIsMovable);
-                delete rectangle;
                 break;
             }
 
@@ -398,7 +392,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 polygon=scene->addPolygon(poly,actualColor, actualColor2);
                 polygon->setFlag(QGraphicsPolygonItem::ItemIsSelectable);
                 polygon->setFlag(QGraphicsPolygonItem::ItemIsMovable);
-                delete polygon;
                 break;
             }
 
@@ -411,7 +404,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 text->setFlag(QGraphicsTextItem::ItemIsSelectable);
                 text->setFlag(QGraphicsTextItem::ItemIsMovable);
                 text->setFlag(QGraphicsTextItem::ItemIsFocusable);
-                delete text;
                 break;
             }
             case(CURSOR):
@@ -423,6 +415,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 foreach (QGraphicsItem *item, scene->items()) {
                     if(item->contains(item->mapFromScene(QPointF(point.x(),point.y())))){
                         somethingSelected=true;
+                        doRotate=false;
                          if(SelItem!=nullptr){
                              centerPointSet=false;
                              SelItem->setGraphicsEffect(0);
@@ -490,6 +483,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                         SelItem=nullptr;
                         doRotate=false;
                         centerPointSet=false;
+                        emit actualToolShowProperty(CURSOR);
                     }
                 break;
                 delete effect;

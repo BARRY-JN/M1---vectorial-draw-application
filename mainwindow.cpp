@@ -118,8 +118,11 @@ void MainWindow::actualToolChangeProperty(Tool tool){
         case TEXT:
             ui->actualProperty->setCurrentIndex(1);
             break;
-        default:
+    case CURSOR:
+            ui->actualProperty->setCurrentIndex(2);
             break;
+    default:
+        break;
     }
 
 }
