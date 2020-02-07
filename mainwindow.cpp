@@ -54,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->drawzone, SIGNAL(setStrokeColor(QColor)),SLOT(changeStrokeColor(QColor)));
     connect(ui->drawzone, SIGNAL(setFillColor(QColor)),SLOT(changeFillColor(QColor)));
     connect(ui->drawzone, SIGNAL(setStrokeSize(int)),SLOT(changeStrokeSize(int)));
+    connect(ui->drawzone, SIGNAL(setTextFont(QFont)),SLOT(changeTextFont(QFont)));
+    connect(ui->drawzone, SIGNAL(setTextContent(QString)),SLOT(changeTextContent(QString)));
+    noPropertyToolSelected();
 }
 
 void MainWindow::dockWidgetInit(){
@@ -185,7 +188,7 @@ bool MainWindow::loadFile(const QString &fileName)
         qDebug()<<"Traitement du fichier";
 
             bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
-            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1;
+            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0;
             double r=-1.0;
             QColor qa, qb;
             QString t;
@@ -193,13 +196,14 @@ bool MainWindow::loadFile(const QString &fileName)
             QPainterPath *path=new QPainterPath();
             QString points;
             QPointF coord;
+            QFont font;
 
             QRegExp rrect("(rect )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
             QRegExp relli("(elli )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
             QRegExp rpath("(path )([\\{ ])([ \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)");
             QRegExp rpoly("(poly )([\\{ ])([ \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
-            QRegExp rtext("(text )(\\d+)( )(\\d+)( )([.-\\d]+)( )([ \\w]+)");
-            QRegExp rline("(line )(\\d+)( )(\\d+)( )(\\d+)( )(\\d+)( )([.-\\d]+)( )(\\d+)( )(#[\\w]+)");
+            QRegExp rtext("(text )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
+            QRegExp rline("(line )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
 
             //le premier mot capturé commence à 1
             if(rrect.indexIn(ligne)!=-1){
@@ -249,7 +253,9 @@ bool MainWindow::loadFile(const QString &fileName)
                 x=rtext.cap(2).toInt();
                 y=rtext.cap(4).toInt();
                 r=rtext.cap(6).toDouble();
-                t=rtext.cap(8).toInt();
+                font= QFont(rtext.cap(8));
+                tsize=rtext.cap(10).toInt();
+                t=rtext.cap(12);
                 itext=true;
             }
             if(rline.indexIn(ligne)!=-1){
@@ -302,7 +308,8 @@ bool MainWindow::loadFile(const QString &fileName)
              qi=ui->drawzone->getScene()->addLine(x,y,x2,y2,QPen(qa,s));
          }
          if(itext){
-             qi = ui->drawzone->getScene()->addText(t);
+             font.setPointSize(tsize);
+             qi = ui->drawzone->getScene()->addText(t,font);
              qi->setPos(x,y);
          }
          if(qi){
@@ -397,7 +404,7 @@ bool MainWindow::saveFile(const QString &fileName)
 
         textItem = dynamic_cast<QGraphicsTextItem*>(item);
         if(textItem)
-            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+QString::number(textItem->rotation())+" "+ textItem->toPlainText().simplified());
+            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+QString::number(textItem->rotation())+" ("+ textItem->font().family()+ ","+QString::number(textItem->font().pointSize()) +") " + textItem->toPlainText().simplified());
         coord="";
         it.append("\n");
     }
@@ -633,6 +640,13 @@ void MainWindow::changeFillColor(QColor color){
 }
 void MainWindow::changeStrokeSize(int value){
     ui->horizontalSlider->setValue(value);
+}
+void MainWindow::changeTextFont(QFont font){
+    ui->fontComboBox->setCurrentFont(font);
+    ui->spinBox->setValue(font.pointSize());
+}
+void MainWindow::changeTextContent(QString text){
+    ui->textEdit->setText(text);
 }
 
 void MainWindow::on_spinBox_valueChanged(int arg1)

@@ -89,19 +89,32 @@ void drawZone::setactualSize(int value){
 
 void drawZone::setactualtextSize(int value){
     actualtextSize=value;
+    if(actualTool==CURSOR&&textItem){
+        QFont tfont = textItem->font();
+        tfont.setPointSize(value);
+        textItem->setFont(tfont);
+    }
+
 }
 
 void drawZone::setactualtextFont(QFont font){
     actualtextFont=font;
+    if(actualTool==CURSOR&&textItem){
+        font.setPointSize(actualtextSize);
+        textItem->setFont(font);
+    }
 }
 
 void drawZone::setactualtextContent(QString text){
     actualtextContent=text;
+    if(actualTool==CURSOR&&textItem){
+        textItem->setPlainText(text);
+    }
 }
 
 void drawZone::setactualColor(QColor color){
     actualColor=color;
-    //meme principe
+    //Si l'outil sélection est activé et qu'un item est sélectionné
     if(actualTool==CURSOR&&SelItem!=nullptr){
         if(pathItem)
             pathItem->setPen(QPen(actualColor,pathItem->pen().width()));
@@ -443,8 +456,11 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
                          textItem = dynamic_cast<QGraphicsTextItem*>(item);
 
-                         if(textItem)
+                         if(textItem){
                              emit actualToolShowProperty(TEXT);
+                             emit setTextFont(textItem->font());
+                             emit setTextContent(textItem->toPlainText());
+                         }
 
 
                          if(pathItem){

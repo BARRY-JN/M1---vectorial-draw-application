@@ -38,6 +38,8 @@ private slots:
     void changeStrokeColor(QColor);
     void changeFillColor(QColor);
     void changeStrokeSize(int);
+    void changeTextFont(QFont);
+    void changeTextContent(QString);
 
     void dockWidgetInit();
     void propertyWidgetInit();

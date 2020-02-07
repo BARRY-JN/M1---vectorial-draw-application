@@ -100,6 +100,8 @@ signals:
     void setStrokeColor(QColor);
     void setFillColor(QColor);
     void setStrokeSize(int);
+    void setTextFont(QFont);
+    void setTextContent(QString);
 
 
 };
