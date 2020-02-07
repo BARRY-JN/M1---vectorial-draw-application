@@ -176,161 +176,138 @@ bool MainWindow::loadFile(const QString &fileName)
 
     newFile();
     QTextStream flux(&file);
-    QString ligne;
+    QString ligne,src;
 
     while(! flux.atEnd())
     {
         //traitement de la ligne
         ligne = flux.readLine();
-        qDebug()<<"truc";
-        QStringList word= ligne.split(" ",QString::SkipEmptyParts);
+        qDebug()<<"Traitement du fichier";
 
-         bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false;
-         bool xSet=false,ySet=false,wSet=false,hSet=false,sSet=false,qaSet=false, qbSet=false, coordStartRead=false,coordEndRead=false,xRead=true,firstPointSet=false;
-        int x=-1,y=-1,w=-1,h=-1,s=-1;
-        QColor qa, qb;
-        QString t;
-        QPolygonF *poly=new QPolygonF();
-        QPainterPath *path=new QPainterPath();
-        QPointF coord;
-/* ______________________________________________________________________________________________________________________________________________________ */
-/* ______________________________________________________________________________________________________________________________________________________ */
-/* ______________________________________________________________________________________________________________________________________________________ */
+            bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
+            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1;
+            double r=-1.0;
+            QColor qa, qb;
+            QString t;
+            QPolygonF *poly=new QPolygonF();
+            QPainterPath *path=new QPainterPath();
+            QString points;
+            QPointF coord;
 
-        //Lecture mot par mot
-         for (auto src : word){
+            QRegExp rrect("(rect )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp relli("(elli )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp rpath("(path )([\\{ ])([ \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)");
+            QRegExp rpoly("(poly )([\\{ ])([ \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp rtext("(text )(\\d+)( )(\\d+)( )([.-\\d]+)( )([ \\w]+)");
+            QRegExp rline("(line )(\\d+)( )(\\d+)( )(\\d+)( )(\\d+)( )([.-\\d]+)( )(\\d+)( )(#[\\w]+)");
 
-            /*traitement du rectangle et de l'éllipse
-            on fait une succession de test pour savoir
-            quelle propriété de la figure est on en train de lire */
-
-            if(irec||ielli||iline){
-                if(!xSet){
-                    x=src.toInt();
-                    xSet=true;
-                }else{
-                    if(!ySet){
-                        y=src.toInt();
-                        ySet=true;
-                    }else{
-                        if(!wSet){
-                            w=src.toInt();
-                            wSet=true;
-                        }else{
-                            if(!hSet){
-                                h=src.toInt();
-                                hSet=true;
-                            }else{
-                                if(!sSet){
-                                    s=src.toInt();
-                                    sSet=true;
-                                }else{
-                                    if(!qaSet){
-                                            qa.setNamedColor(src);
-                                            qaSet=true;
-                                        }else{
-                                            if(!qbSet){
-                                                qb.setNamedColor(src);
-                                                qbSet=true;
-                                            }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            /*traitement du tracé libre et du dessin polygonal*/
-            if(ipoly||ipath){
-                if(coordStartRead){
-                    if(xRead){
-                        coord.setX(src.toInt());
-                    }
-                    if(!xRead){
-                        coord.setY(src.toInt());
-                        if(!firstPointSet){
-                            poly->append(coord);
-                            path->moveTo(coord);
-                            firstPointSet=true;
-                        }else{
-                            poly->append(coord);
-                            path->lineTo(coord);
-                        }
-                    }
-                     xRead=!xRead;
-                }
-                if(coordEndRead){
-                    if(!sSet){
-                        s=src.toInt();
-                        sSet=true;
-                    }else{
-                        if(!qaSet){
-                                qa.setNamedColor(src);
-                                qaSet=true;
-                        }else{
-                                if(!qbSet){
-                                    qb.setNamedColor(src);
-                                    qbSet=true;
-                                }
-                        }
-                    }
-                }
-
-                if(src=="{")
-                    coordStartRead=true;
-                if(src=="}"){
-                    coordEndRead=true;
-                    coordStartRead=false;
-                }
-            }
-
-            if(itext){
-                if(!xSet){
-                    x=src.toInt();
-                    xSet=true;
-                }else{
-                    if(!ySet){
-                        y=src.toInt();
-                        ySet=true;
-                    }else{
-                        t.append(src);
-                        t.append(" ");
-                    }
-                }
-            }
-
-            if(src=="rect")
+            //le premier mot capturé commence à 1
+            if(rrect.indexIn(ligne)!=-1){
+                qDebug()<<"rect";
+                x=rrect.cap(2).toInt();
+                y=rrect.cap(4).toInt();
+                w=rrect.cap(6).toInt();
+                h=rrect.cap(8).toInt();
+                r=rrect.cap(10).toDouble();
+                s=rrect.cap(12).toInt();
+                qa.setNamedColor(rrect.cap(14));
+                qb.setNamedColor(rrect.cap(16));
                 irec=true;
-            if(src=="elli")
-                ielli=true;
-            if(src=="path")
-                ipath=true;
-            if(src=="poly")
-                ipoly=true;
-            if(src=="text")
-                itext=true;
-            if(src=="line")
-                iline=true;
-        }
+            }
 
+            if(relli.indexIn(ligne)!=-1){
+                qDebug()<<"elli";
+                x=relli.cap(2).toInt();
+                y=relli.cap(4).toInt();
+                w=relli.cap(6).toInt();
+                h=relli.cap(8).toInt();
+                r=relli.cap(10).toDouble();
+                s=relli.cap(12).toInt();
+                qa.setNamedColor(relli.cap(14));
+                qb.setNamedColor(relli.cap(16));
+                ielli=true;
+            }
+            if(rpath.indexIn(ligne)!=-1){
+                qDebug()<<"path";
+                points=rpath.cap(3);
+                r=rpath.cap(6).toDouble();
+                s=rpath.cap(8).toInt();
+                qa.setNamedColor(rpath.cap(10));
+                ipath=true;
+            }
+            if(rpoly.indexIn(ligne)!=-1){
+                qDebug()<<"poly";
+                points=rpoly.cap(3);
+                r=rpoly.cap(6).toDouble();
+                s=rpoly.cap(8).toInt();
+                qa.setNamedColor(rpoly.cap(10));
+                qb.setNamedColor(rpoly.cap(12));
+                ipoly=true;
+            }
+            if(rtext.indexIn(ligne)!=-1){
+                qDebug()<<"text";
+                x=rtext.cap(2).toInt();
+                y=rtext.cap(4).toInt();
+                r=rtext.cap(6).toDouble();
+                t=rtext.cap(8).toInt();
+                itext=true;
+            }
+            if(rline.indexIn(ligne)!=-1){
+                qDebug()<<"line";
+                x=rline.cap(2).toInt();
+                y=rline.cap(4).toInt();
+                x2=rline.cap(6).toInt();
+                y2=rline.cap(8).toInt();
+                r=rline.cap(10).toDouble();
+                s=rline.cap(12).toInt();
+                qa.setNamedColor(rline.cap(14));
+                iline=true;
+            }
+
+
+            qDebug()<<"liste: "<<points;
+            QStringList word= points.split(" ",QString::SkipEmptyParts);
+
+            for (auto src : word){
+                if(xRead){
+                    coord.setX(src.toInt());
+                }else{
+                    coord.setY(src.toInt());
+                    if(!firstPointSet){
+                        poly->append(coord);
+                        path->moveTo(coord);
+                        firstPointSet=true;
+                    }else{
+                        poly->append(coord);
+                        path->lineTo(coord);
+                    }
+                }
+                xRead=!xRead;
+            }
+
+         QGraphicsItem *qi=nullptr;
          if(irec){
-             ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
+             qi=ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
          }
          if(ielli){
-             ui->drawzone->getScene()->addEllipse(x,y,w,h,QPen(qa,s),QBrush(qb));
+             qi=ui->drawzone->getScene()->addEllipse(x,y,w,h,QPen(qa,s),QBrush(qb));
          }
          if(ipath){
-             ui->drawzone->getScene()->addPath(*path,QPen(qa, s, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+             qi=ui->drawzone->getScene()->addPath(*path,QPen(qa, s, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
          }
          if(ipoly){
-             ui->drawzone->getScene()->addPolygon(*poly,QPen(qa,s),QBrush(qb));
+             qi=ui->drawzone->getScene()->addPolygon(*poly,QPen(qa,s),QBrush(qb));
          }
          if(iline){
-             ui->drawzone->getScene()->addLine(x,y,w,h,QPen(qa,s));
+             qi=ui->drawzone->getScene()->addLine(x,y,x2,y2,QPen(qa,s));
          }
          if(itext){
-             QGraphicsTextItem *qti = ui->drawzone->getScene()->addText(t);
-             qti->setPos(x,y);
+             qi = ui->drawzone->getScene()->addText(t);
+             qi->setPos(x,y);
+         }
+         if(qi){
+            qi->setTransformOriginPoint(qi->boundingRect().center());
+            qi->setRotation(r);
          }
 
  /* ______________________________________________________________________________________________________________________________________________________ */
@@ -394,11 +371,11 @@ bool MainWindow::saveFile(const QString &fileName)
                 coord.append(QString::number(pathItem->path().elementAt(i).x)+" "+QString::number(pathItem->path().elementAt(i).y)+" ");
             }
             coord.append("}");
-            it.append("path "+coord+" "+QString::number(pathItem->pen().width())+" "+pathItem->pen().color().name());
+            it.append("path "+coord+" "+QString::number(pathItem->rotation())+" "+QString::number(pathItem->pen().width())+" "+pathItem->pen().color().name());
         }
         lineItem = dynamic_cast<QGraphicsLineItem*>(item);
         if(lineItem)
-            it.append("line "+QString::number(lineItem->line().x1())+" "+QString::number(lineItem->line().y1())+" "+QString::number(lineItem->line().x2())+" "+QString::number(lineItem->line().y2())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
+            it.append("line "+QString::number(lineItem->line().x1())+" "+QString::number(lineItem->line().y1())+" "+QString::number(lineItem->line().x2())+" "+QString::number(lineItem->line().y2())+" "+QString::number(lineItem->rotation())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
 
         polygonItem = dynamic_cast<QGraphicsPolygonItem*>(item);
         if(polygonItem){
@@ -407,20 +384,20 @@ bool MainWindow::saveFile(const QString &fileName)
                 coord.append(QString::number(polygonItem->polygon().value(i).x())+" "+QString::number(polygonItem->polygon().value(i).y())+" ");
             }
             coord.append("}");
-            it.append("poly "+coord+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
+            it.append("poly "+coord+" "+QString::number(polygonItem->rotation())+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
         }
 
         rectItem = dynamic_cast<QGraphicsRectItem*>(item);
         if(rectItem)
-            it.append("rect "+QString::number(rectItem->rect().x())+" "+QString::number(rectItem->rect().y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+ QString::number(rectItem->pen().width())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
+            it.append("rect "+QString::number(rectItem->rect().x())+" "+QString::number(rectItem->rect().y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+QString::number(rectItem->rotation())+" "+ QString::number(rectItem->pen().width())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
 
         elliItem = dynamic_cast<QGraphicsEllipseItem*>(item);
         if(elliItem)
-            it.append("elli "+QString::number(elliItem->rect().x())+" "+QString::number(elliItem->rect().y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+ QString::number(elliItem->pen().width())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
+            it.append("elli "+QString::number(elliItem->rect().x())+" "+QString::number(elliItem->rect().y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+QString::number(elliItem->rotation())+" "+ QString::number(elliItem->pen().width())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
 
         textItem = dynamic_cast<QGraphicsTextItem*>(item);
         if(textItem)
-            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+ textItem->toPlainText().simplified());
+            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+QString::number(textItem->rotation())+" "+ textItem->toPlainText().simplified());
         coord="";
         it.append("\n");
     }

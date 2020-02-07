@@ -228,7 +228,7 @@ void drawZone::keyPressEvent( QKeyEvent *ev){
                 centerPointSet=true;
             }
             doRotate=!doRotate;
-            qDebug()<<"touche appuyée";
+            qDebug()<<"rotation activée";
         }
     }
 
@@ -513,34 +513,18 @@ void drawZone::selectNothing(){
 }
 
 drawZone::~drawZone(){
-    if(painter)
-        delete painter;
     if(pathitem)
         delete pathitem;
     if(path)
         delete path;
     if(previewPoint)
         delete previewPoint;
-    if(polygon)
-        delete polygon;
     if(poly)
         delete poly;
     if(actualPoint)
         delete actualPoint;
     if(SelItem)
         delete SelItem;
-    if(pathItem)
-        delete pathItem;
-    if(lineItem)
-        delete lineItem;
-    if(polygonItem)
-        delete polygonItem;
-    if(rectItem)
-        delete rectItem;
-    if(elliItem)
-        delete elliItem;
-    if(textItem)
-        delete textItem;
     if(previewcircle)
         delete previewcircle;
     if(previewline)
