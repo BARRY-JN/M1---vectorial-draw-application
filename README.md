@@ -1,3 +1,3 @@
 # Application de dessin vectoriel
 
-![capture du logiciel](https://user-images.githubusercontent.com/43220602/73129001-39997480-3fda-11ea-9dd7-584bc4e232ba.png)
+![capture logiciel](https://user-images.githubusercontent.com/43220602/74040493-20be9500-49c4-11ea-95b0-579c0033c7f1.png)
