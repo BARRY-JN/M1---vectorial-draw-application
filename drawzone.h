@@ -20,32 +20,41 @@ public:
     void setactualColor(QColor);
     void setactualColor2(QColor);
     void setactualSize(int);
+    void setactualtextSize(int);
+    void setactualtextFont(QFont);
+    void setactualtextContent(QString);
     void clearScene();
     void saveScene();
+    bool loadFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
+    bool saveAsFile();
+    void addpicture(QPixmap pixmap);
+    QGraphicsScene *getScene();
+    void selectNothing();
 
 protected:
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void leaveEvent(QEvent*) override;
+    void keyPressEvent( QKeyEvent*) override;
     void showcontextmenu();
 
 private :
     QGraphicsScene *scene;
-    QGraphicsRectItem *rectangle;
-    QGraphicsTextItem *text;
-    QGraphicsLineItem *line;
-    QGraphicsPixmapItem *pixmap;
-    QGraphicsSimpleTextItem *simpletext;
     QPointF origPoint;
     Tool actualTool;
     QColor actualColor;
     QColor actualColor2;
     int actualSize;
+    int actualtextSize;
+    QFont actualtextFont;
+    QString actualtextContent;
     int PointActuel=0;
     int count=0;
     bool first=true;
     QPointF point_init;
+    QPainter *painter;
 
     //Pour le dessin à main levée
     QGraphicsPathItem *pathitem=nullptr;
@@ -68,9 +77,31 @@ private :
      QGraphicsEllipseItem* elliItem ;
      QGraphicsTextItem* textItem;
 
+     //pour le deplacement
+     int initX,initY;
+
+     //pour la rotation
+     bool centerPointSet=false;
+     bool doRotate=false;
+     int angle=0;
+
+     //Pour les previews des différentes formes
+     QGraphicsEllipseItem *previewcircle=nullptr;
+     QGraphicsLineItem* previewline=nullptr ;
+     QGraphicsPolygonItem* previewtriangle=nullptr ;
+     QGraphicsRectItem* previewrectangle=nullptr;
+     QGraphicsTextItem* previewtext=nullptr;
+
+     QPointF PreviousPoint;
+
 
 signals:
     void actualToolShowProperty(Tool);
+    void setStrokeColor(QColor);
+    void setFillColor(QColor);
+    void setStrokeSize(int);
+    void setTextFont(QFont);
+    void setTextContent(QString);
 
 
 };

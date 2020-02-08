@@ -1,3 +1,5 @@
 # Application de dessin vectoriel
 
-![capture du logiciel](https://user-images.githubusercontent.com/43220602/73129001-39997480-3fda-11ea-9dd7-584bc4e232ba.png)
+Amélioration possible : Faire une zone en bas où on voit une liste d'image qu'on peut faire glisser sur la zone de dessin
+
+![capture logiciel](https://user-images.githubusercontent.com/43220602/74040493-20be9500-49c4-11ea-95b0-579c0033c7f1.png)
