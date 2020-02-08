@@ -467,18 +467,16 @@ void MainWindow::helpButtonClicked(){
 
 }
 void MainWindow::toolButtonClicked(){
-    if(!ui->toolWidget->isHidden())
+    if(!ui->toolWidget->isHidden()){
         ui->toolWidget->hide();
-    else {
+        ui->propertyWidget->hide();
+    }else {
         ui->toolWidget->show();
+        ui->propertyWidget->show();
     }
 }
 void MainWindow::propertyButtonClicked(){
-    if(!ui->propertyWidget->isHidden())
-        ui->propertyWidget->hide();
-    else {
-        ui->propertyWidget->show();
-    }
+
 }
 
 void MainWindow::on_strokeColorButton2_clicked()
