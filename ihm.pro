@@ -18,14 +18,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     drawzone.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    propiete.cpp
 
 HEADERS += \
     drawzone.h \
-    mainwindow.h
+    mainwindow.h \
+    propiete.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    propiete.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

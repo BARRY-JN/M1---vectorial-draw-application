@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1190</width>
-    <height>865</height>
+    <height>940</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -992,25 +992,17 @@ p, li { white-space: pre-wrap; }
      <item row="0" column="0">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QListWidget" name="listWidget"/>
+        <widget class="QTreeView" name="treeView">
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QPushButton" name="addImageButton">
-           <property name="text">
-            <string>Ajouter image</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="DeleteImageButton">
-           <property name="text">
-            <string>Supprimer image</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QListView" name="listView"/>
        </item>
       </layout>
      </item>

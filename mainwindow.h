@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QGraphicsItem>
+#include "propiete.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -79,6 +80,8 @@ private slots:
 
     void on_textEdit_textChanged();
 
+    void setDrawzoneSize(int width);
+
 private:
     Ui::MainWindow *ui;
 
@@ -92,6 +95,9 @@ private:
     bool isSaved=false;
 
     QString currentFile;
+
+    int width;
+    int height;
 
     //Pour la sauvegarde
     QGraphicsPathItem* pathItem ;

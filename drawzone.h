@@ -29,6 +29,7 @@ public:
     bool saveFile(const QString &fileName);
     bool saveAsFile();
     void addpicture(QPixmap pixmap);
+    QGraphicsItem* getActItem();
     QGraphicsScene *getScene();
     void selectNothing();
 
@@ -39,6 +40,10 @@ protected:
     void leaveEvent(QEvent*) override;
     void keyPressEvent( QKeyEvent*) override;
     void showcontextmenu();
+
+private slots:
+    void deleteItem();
+    void CopyItem();
 
 private :
     QGraphicsScene *scene;
@@ -55,6 +60,8 @@ private :
     bool first=true;
     QPointF point_init;
     QPainter *painter;
+    QMenu *menu;
+    QAction *qduplicate, *qdelete;
 
     //Pour le dessin à main levée
     QGraphicsPathItem *pathitem=nullptr;

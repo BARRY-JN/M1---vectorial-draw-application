@@ -21,6 +21,13 @@ drawZone::drawZone(QWidget *parent) :
     scene = new QGraphicsScene(this);
     setScene(scene);
     focusPolicy();
+    qduplicate=new QAction("Dupliquer", this);
+    qdelete=new QAction("Supprimer", this);
+    menu=new QMenu(this);
+    menu->addAction(qduplicate);
+    menu->addAction(qdelete);
+    connect(qduplicate, SIGNAL(triggered()),this,SLOT(CopyItem()));
+    connect(qdelete, SIGNAL(triggered()),this,SLOT(deleteItem()));
 
 /*
    QBrush greenBrush(Qt::green);
@@ -258,10 +265,11 @@ void drawZone::keyPressEvent( QKeyEvent *ev){
 
 }
 
-void drawZone::addpicture(QPixmap pixmap){
+void drawZone::addpicture(QPixmap pixmap)
+{
         scene->addPixmap(pixmap);
-        scene->setSceneRect(scene->sceneRect());
-    }
+
+}
 
 bool drawZone::saveFile(const QString &fileName){
     qDebug() << __FUNCTION__ <<"sauvegarde";
@@ -531,16 +539,129 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
 void drawZone::showcontextmenu()
 {
-    QMenu menu(this);
-    menu.addAction(new QAction("Copier", this));
-    menu.addAction(new QAction("Coller", this));
-    menu.addAction(new QAction("Supprimer", this));
-    menu.exec(QCursor::pos());
+    menu->exec(QCursor::pos());
 }
 
 void drawZone::selectNothing(){
     SelItem=nullptr;
     centerPointSet=false;
+}
+
+void drawZone::deleteItem()
+{
+    if(!SelItem)
+        return;
+    scene->removeItem(SelItem);
+    delete SelItem;
+    SelItem=nullptr;
+
+}
+
+void drawZone::CopyItem()
+{
+  QGraphicsItem* actItem =  SelItem;
+
+        rectItem = dynamic_cast<QGraphicsRectItem*>(actItem);
+        if(rectItem)
+        {
+            double rectX = rectItem->rect().x();
+            double rectY = rectItem->rect().y();
+            double rectW = rectItem->rect().width();
+            double rectH = rectItem->rect().height();
+            QPen pen = rectItem->pen();
+            QBrush brush = rectItem->brush();
+
+            scene->addRect(rectX+5.0, rectY-5.0, rectW, rectH, pen, brush);
+            return;
+        }
+
+        elliItem = dynamic_cast<QGraphicsEllipseItem*>(actItem);
+        if(elliItem)
+        {
+            double elliX = elliItem->rect().x();
+            double elliY = elliItem->rect().y();
+            double elliW = elliItem->rect().width();
+            double elliH = elliItem->rect().height();
+            QPen pen = elliItem->pen();
+            QBrush brush = elliItem->brush();
+
+            scene->addEllipse(elliX, elliY, elliW, elliH, pen, brush);
+            return;
+        }
+
+        pathItem = dynamic_cast<QGraphicsPathItem*>(actItem);
+        if(pathItem)
+        {
+            double pathX, pathY;
+            for(int i=0;i<pathItem->path().elementCount();i++)
+            {
+                pathX = pathItem->path().elementAt(i).x;
+                pathY = pathItem->path().elementAt(i).y;
+            }
+
+            double pathW = pathItem->pen().width();
+            QColor pathColor = pathItem->pen().color();
+            QPen pen = pathItem->pen();
+            QBrush brush = pathItem->brush();
+
+            //ui->drawzone->getScene()->addPath((*path,QPen(pathColor, s, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            return;
+        }
+
+        lineItem = dynamic_cast<QGraphicsLineItem*>(actItem);
+        if(lineItem)
+        {
+            double lineX1 = lineItem->line().x1();
+            double lineX2 = lineItem->line().x2();
+            double lineY1 = lineItem->line().y1();
+            double lineY2 = lineItem->line().x2();
+            double lineW = lineItem->pen().width();
+            QString lineColor = lineItem->pen().color().name();
+
+            QPen pen = lineItem->pen();
+
+            scene->addLine(lineX1,lineY1, lineX2, lineY2, pen);
+            return;
+        }
+
+        polygonItem = dynamic_cast<QGraphicsPolygonItem*>(actItem);
+        if(polygonItem)
+        {
+            double polygX, polygY;
+            for(int i=0;i<pathItem->path().elementCount();i++)
+            {
+                polygX = polygonItem->polygon().value(i).x();
+                polygY = polygonItem->polygon().value(i).y();
+            }
+
+            double polygW = polygonItem->pen().width();
+            QString polygColor = polygonItem->pen().color().name();
+            QString polygColor2 = polygonItem->brush().color().name();
+            QPen pen = polygonItem->pen();
+            QBrush brush = polygonItem->brush();
+
+            //ui->drawzone->getScene()->addPolygon(pen, brush);
+            return;
+        }
+
+        textItem = dynamic_cast<QGraphicsTextItem*>(actItem);
+        if(textItem)
+        {
+             double textX = textItem->x();
+             double textY = textItem->y();
+
+             QString t = textItem->toPlainText().simplified();
+           // ui->drawzone->getScene()->addText();
+             QGraphicsTextItem *qti =scene->addText(t);
+                          qti->setPos(textX,textY);
+            return;
+        }
+
+}
+
+QGraphicsItem* drawZone::getActItem()
+{
+    return SelItem;
 }
 
 drawZone::~drawZone(){

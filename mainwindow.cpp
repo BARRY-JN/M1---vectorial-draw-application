@@ -4,7 +4,8 @@
 #include <QFileDialog>
 #include <QAction>
 #include <QImage>
-
+#include <QMenu>
+#include <QInputDialog>
 #include <QMessageBox>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
@@ -16,6 +17,7 @@ QLabel *labMsg;
 Tool actualTool;
 
 bool isSaved=false;
+bool scaled=true;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -68,6 +70,7 @@ void MainWindow::dockWidgetInit(){
     ui->helpWidget->hide();
     connect(ui->actionAide, SIGNAL(triggered()),this, SLOT(helpButtonClicked()));
     connect(ui->actionOutils, SIGNAL(triggered()),this, SLOT(toolButtonClicked()));
+    connect(ui->actionProprietes, SIGNAL(triggered()),this, SLOT(propertyButtonClicked()));
 
 }
 
@@ -149,8 +152,12 @@ void MainWindow::newFile()
 
 void MainWindow::clearFile(){
     isSaved = false;
+    scaled = true;
     ui->drawzone->clearScene();
     ui->drawzone->show();
+    ui->scrollAreaWidgetContents->resize(ui->scrollArea->width(),ui->scrollArea->width());
+    ui->drawzone->setGeometry(0,0,ui->scrollArea->width(),ui->scrollArea->width());
+    ui->drawzone->updateGeometry();
     ui->drawzone->selectNothing();
     ui->drawzone->setactualTool(CURSOR);
 }
@@ -336,8 +343,24 @@ void MainWindow::toolButtonClicked(){
         ui->propertyWidget->show();
     }
 }
-void MainWindow::propertyButtonClicked(){
 
+void MainWindow::setDrawzoneSize(int width){
+    ui->scrollAreaWidgetContents->resize(width,width);
+    ui->drawzone->setGeometry(0,0,width,width);
+    ui->drawzone->updateGeometry();
+}
+
+void MainWindow::propertyButtonClicked(){
+    Propiete prop;
+    prop.setModal(true);
+    if(prop.exec() == 1){
+        ui->scrollAreaWidgetContents->resize(prop.getWidth(),prop.getHeight());
+        ui->drawzone->setGeometry(0,0,prop.getWidth(),prop.getHeight());
+        ui->drawzone->updateGeometry();
+    }
+    QVariant larg = ui->drawzone->width();
+    QVariant haut = ui->drawzone->height();
+    showStatusMessage(larg.toString()+"x"+haut.toString());
 }
 
 void MainWindow::on_strokeColorButton2_clicked()
@@ -469,7 +492,9 @@ void MainWindow::on_actionImporter_triggered()
 bool MainWindow::loadImportedFile(const QString &fileName){
 
     QPixmap pixm;
-    pixm.load(fileName);
+    QImage read;
+    read.load(fileName);
+    pixm = QPixmap::fromImage(read);
     if (pixm.isNull()){
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
                                  tr("Cannot load %1: %2")
@@ -478,7 +503,17 @@ bool MainWindow::loadImportedFile(const QString &fileName){
 
     }
     else{
-        //ui->drawzone->clearScene();
+        //redimensionnement de la zone de travail
+        if(scaled)
+        {
+            ui->scrollAreaWidgetContents->resize(pixm.width(),pixm.height());
+            ui->drawzone->setGeometry(0,0,pixm.width(),pixm.height());
+            ui->drawzone->setSceneRect(0,0,pixm.width(),pixm.height());
+            ui->drawzone->updateGeometry();
+            scaled = false;
+//            ui->drawzone->setLayout(0);
+        }
+
         ui->drawzone->addpicture(pixm);
         setCurrentFile(fileName);
         return true;
