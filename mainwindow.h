@@ -25,9 +25,9 @@ public:
     ~MainWindow() override;
     static void setCursorLabelCoord(QMouseEvent*);
     static void leaveDrawZone();
-    bool loadFile(const QString &fileName);
     void importFile(const QString &fileName);
     void showStatusMessage(const QString &msg);
+    void clearFile();
 
 private slots:
     void newFile();
@@ -43,11 +43,15 @@ private slots:
 
     void dockWidgetInit();
     void propertyWidgetInit();
+    void drawZoneSignalInit();
+    void menuInit();
+    void sharedPropertyInit();
 
     void shapeToolSelected();
     void lineToolSelected();
     void textToolSelected();
     void noPropertyToolSelected();
+    void imageToolSelected(bool);
 
     void helpButtonClicked();
     void toolButtonClicked();
@@ -77,11 +81,13 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
     void initStatusBar();
     bool saveFile(const QString &filename);
     void setCurrentFile(const QString &fileName);
     bool loadImportedFile(const QString &filename);
     bool saveExportFile(const QString &fileName);
+    bool loadFile(const QString &fileName);
 
     bool isSaved=false;
 

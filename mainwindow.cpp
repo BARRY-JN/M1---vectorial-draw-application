@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QAction>
 #include <QImage>
-#include <QMenu>
+
 #include <QMessageBox>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
@@ -23,15 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     qDebug() << "init MainWindow" ;
     ui->setupUi(this);
-    //ui->page->setMouseTracking(true);
 
-    ui->drawzone->hide();
-    connect(ui->actionNouveau, SIGNAL(triggered()),this,SLOT(newFile()));
-    connect(ui->actionOuvrir, SIGNAL(triggered()),this,SLOT(openFile()));
-    connect(ui->actionEnregistrer, SIGNAL(triggered()),SLOT(save()));
-    connect(ui->actionEnregistrer_sous, SIGNAL(triggered()),SLOT(saveAs()));
-
-    ui->helpWidget->hide();
+    menuInit();
     dockWidgetInit();
     propertyWidgetInit();
 
@@ -46,24 +39,43 @@ MainWindow::MainWindow(QWidget *parent)
     mouse_coord->y=0;
     initStatusBar();
 
+    sharedPropertyInit();
+    drawZoneSignalInit();
+
+    noPropertyToolSelected();
+    imageToolSelected(false);
+}
+
+void MainWindow::sharedPropertyInit(){
     ui->drawzone->setactualSize(ui->horizontalSlider->value());
     ui->drawzone->setactualColor(ui->strokeColorButton2->palette().color(ui->strokeColorButton2->backgroundRole()));
     ui->drawzone->setactualColor2(ui->fillColorButton->palette().color(ui->fillColorButton->backgroundRole()));
+    ui->drawzone->setactualtextFont(ui->fontComboBox->currentFont());
+    ui->drawzone->setactualtextSize(ui->spinBox->value());
+    ui->drawzone->setTextContent(ui->textEdit->toPlainText());
+}
 
+void MainWindow::drawZoneSignalInit(){
     connect(ui->drawzone, SIGNAL(actualToolShowProperty(Tool)),SLOT(actualToolChangeProperty(Tool)));
     connect(ui->drawzone, SIGNAL(setStrokeColor(QColor)),SLOT(changeStrokeColor(QColor)));
     connect(ui->drawzone, SIGNAL(setFillColor(QColor)),SLOT(changeFillColor(QColor)));
     connect(ui->drawzone, SIGNAL(setStrokeSize(int)),SLOT(changeStrokeSize(int)));
     connect(ui->drawzone, SIGNAL(setTextFont(QFont)),SLOT(changeTextFont(QFont)));
     connect(ui->drawzone, SIGNAL(setTextContent(QString)),SLOT(changeTextContent(QString)));
-    noPropertyToolSelected();
 }
-
 void MainWindow::dockWidgetInit(){
+    ui->drawzone->hide();
+    ui->helpWidget->hide();
     connect(ui->actionAide, SIGNAL(triggered()),this, SLOT(helpButtonClicked()));
     connect(ui->actionOutils, SIGNAL(triggered()),this, SLOT(toolButtonClicked()));
-    connect(ui->actionProprietes, SIGNAL(triggered()),this, SLOT(propertyButtonClicked()));
 
+}
+
+void MainWindow::menuInit(){
+    connect(ui->actionNouveau, SIGNAL(triggered()),this,SLOT(newFile()));
+    connect(ui->actionOuvrir, SIGNAL(triggered()),this,SLOT(openFile()));
+    connect(ui->actionEnregistrer, SIGNAL(triggered()),SLOT(save()));
+    connect(ui->actionEnregistrer_sous, SIGNAL(triggered()),SLOT(saveAs()));
 }
 
 void MainWindow::propertyWidgetInit(){
@@ -76,7 +88,7 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->freeDrawButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
     connect(ui->textButton, SIGNAL(clicked()),this,SLOT(textToolSelected()));
 
-    connect(ui->pictureButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
+    connect(ui->pictureButton, SIGNAL(toggled(bool)),this,SLOT(imageToolSelected(bool)));
     connect(ui->cursorButton, SIGNAL(clicked()),this,SLOT(noPropertyToolSelected()));
 
     connect(ui->lineButton, SIGNAL(toggled(bool)),this,SLOT(lineChecked(bool)));
@@ -132,6 +144,10 @@ void MainWindow::actualToolChangeProperty(Tool tool){
 
 void MainWindow::newFile()
 {
+    clearFile();
+}
+
+void MainWindow::clearFile(){
     isSaved = false;
     ui->drawzone->clearScene();
     ui->drawzone->show();
@@ -146,7 +162,7 @@ void MainWindow::openFile()
     QFileDialog dialog;
     QString fileName = dialog.getOpenFileName(this, "Ouvrir un fichier", picturesLocations.last(), "Dessin vectoriel (*.dv)");
     if (!fileName.isEmpty())
-        loadFile(fileName);
+       loadFile(fileName);
 }
 
 static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
@@ -170,162 +186,7 @@ static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMo
            dialog.setDefaultSuffix("jpg");
 }
 
-bool MainWindow::loadFile(const QString &fileName)
-{
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
-                             tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
-        return false;
-    }
 
-    newFile();
-    QTextStream flux(&file);
-    QString ligne,src;
-
-    while(! flux.atEnd())
-    {
-        //traitement de la ligne
-        ligne = flux.readLine();
-        qDebug()<<"Traitement du fichier";
-
-            bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
-            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0;
-            double r=-1.0;
-            QColor qa, qb;
-            QString t;
-            QPolygonF *poly=new QPolygonF();
-            QPainterPath *path=new QPainterPath();
-            QString points;
-            QPointF coord;
-            QFont font;
-
-            QRegExp rrect("(rect )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
-            QRegExp relli("(elli )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
-            QRegExp rpath("(path )([\\{ ])([ \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)");
-            QRegExp rpoly("(poly )([\\{ ])([ \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
-            QRegExp rtext("(text )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
-            QRegExp rline("(line )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
-
-            //le premier mot capturé commence à 1
-            if(rrect.indexIn(ligne)!=-1){
-                qDebug()<<"rect";
-                x=rrect.cap(2).toInt();
-                y=rrect.cap(4).toInt();
-                w=rrect.cap(6).toInt();
-                h=rrect.cap(8).toInt();
-                r=rrect.cap(10).toDouble();
-                s=rrect.cap(12).toInt();
-                qa.setNamedColor(rrect.cap(14));
-                qb.setNamedColor(rrect.cap(16));
-                irec=true;
-            }
-
-            if(relli.indexIn(ligne)!=-1){
-                qDebug()<<"elli";
-                x=relli.cap(2).toInt();
-                y=relli.cap(4).toInt();
-                w=relli.cap(6).toInt();
-                h=relli.cap(8).toInt();
-                r=relli.cap(10).toDouble();
-                s=relli.cap(12).toInt();
-                qa.setNamedColor(relli.cap(14));
-                qb.setNamedColor(relli.cap(16));
-                ielli=true;
-            }
-            if(rpath.indexIn(ligne)!=-1){
-                qDebug()<<"path";
-                points=rpath.cap(3);
-                r=rpath.cap(6).toDouble();
-                s=rpath.cap(8).toInt();
-                qa.setNamedColor(rpath.cap(10));
-                ipath=true;
-            }
-            if(rpoly.indexIn(ligne)!=-1){
-                qDebug()<<"poly";
-                points=rpoly.cap(3);
-                r=rpoly.cap(6).toDouble();
-                s=rpoly.cap(8).toInt();
-                qa.setNamedColor(rpoly.cap(10));
-                qb.setNamedColor(rpoly.cap(12));
-                ipoly=true;
-            }
-            if(rtext.indexIn(ligne)!=-1){
-                qDebug()<<"text";
-                x=rtext.cap(2).toInt();
-                y=rtext.cap(4).toInt();
-                r=rtext.cap(6).toDouble();
-                font= QFont(rtext.cap(8));
-                tsize=rtext.cap(10).toInt();
-                t=rtext.cap(12);
-                itext=true;
-            }
-            if(rline.indexIn(ligne)!=-1){
-                qDebug()<<"line";
-                x=rline.cap(2).toInt();
-                y=rline.cap(4).toInt();
-                x2=rline.cap(6).toInt();
-                y2=rline.cap(8).toInt();
-                r=rline.cap(10).toDouble();
-                s=rline.cap(12).toInt();
-                qa.setNamedColor(rline.cap(14));
-                iline=true;
-            }
-
-            QStringList word= points.split(" ",QString::SkipEmptyParts);
-
-            for (auto src : word){
-                if(xRead){
-                    coord.setX(src.toInt());
-                }else{
-                    coord.setY(src.toInt());
-                    if(!firstPointSet){
-                        poly->append(coord);
-                        path->moveTo(coord);
-                        firstPointSet=true;
-                    }else{
-                        poly->append(coord);
-                        path->lineTo(coord);
-                    }
-                }
-                xRead=!xRead;
-            }
-
-         QGraphicsItem *qi=nullptr;
-         if(irec){
-             qi=ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
-         }
-         if(ielli){
-             qi=ui->drawzone->getScene()->addEllipse(x,y,w,h,QPen(qa,s),QBrush(qb));
-         }
-         if(ipath){
-             qi=ui->drawzone->getScene()->addPath(*path,QPen(qa, s, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-         }
-         if(ipoly){
-             qi=ui->drawzone->getScene()->addPolygon(*poly,QPen(qa,s,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),QBrush(qb));
-         }
-         if(iline){
-             qi=ui->drawzone->getScene()->addLine(x,y,x2,y2,QPen(qa,s,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-         }
-         if(itext){
-             font.setPointSize(tsize);
-             qi = ui->drawzone->getScene()->addText(t,font);
-             qi->setPos(x,y);
-         }
-         if(qi){
-            qi->setTransformOriginPoint(qi->boundingRect().center());
-            qi->setRotation(r);
-         }
-
- /* ______________________________________________________________________________________________________________________________________________________ */
- /* ______________________________________________________________________________________________________________________________________________________ */
- /* ______________________________________________________________________________________________________________________________________________________ */
-
-    }
-    statusBar()->showMessage(tr("Fichier chargé"), 2000);
-    return true;
-}
 
 void MainWindow::importFile(const QString &fileName)
 {
@@ -540,6 +401,14 @@ void MainWindow::on_pictureButton_clicked()
     ui->drawzone->setactualTool(IMAGE);
 }
 
+void MainWindow::imageToolSelected(bool selected){
+    if(selected){
+        ui->imageWidget->show();
+        noPropertyToolSelected();
+    }else
+        ui->imageWidget->hide();
+}
+
 void MainWindow::on_cursorButton_clicked()
 {
     ui->drawzone->setactualTool(CURSOR);
@@ -662,4 +531,161 @@ void MainWindow::on_fontComboBox_currentFontChanged(const QFont &f)
 void MainWindow::on_textEdit_textChanged()
 {
     ui->drawzone->setactualtextContent(ui->textEdit->toPlainText());
+}
+
+bool MainWindow::loadFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(nullptr, "Logiciel de dessin vectoriel","Format de fichier incompatible");
+        return false;
+    }
+
+    clearFile();
+    QTextStream flux(&file);
+    QString ligne,src;
+
+    while(! flux.atEnd())
+    {
+        //traitement de la ligne
+        ligne = flux.readLine();
+        qDebug()<<"Traitement du fichier";
+
+            bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
+            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0;
+            double r=-1.0;
+            QColor qa, qb;
+            QString t;
+            QPolygonF *poly=new QPolygonF();
+            QPainterPath *path=new QPainterPath();
+            QString points;
+            QPointF coord;
+            QFont font;
+
+            QRegExp rrect("(rect )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp relli("(elli )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp rpath("(path )([\\{ ])([-. \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)");
+            QRegExp rpoly("(poly )([\\{ ])([-. \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp rtext("(text )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
+            QRegExp rline("(line )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
+
+            //le premier mot capturé commence à 1
+            if(rrect.indexIn(ligne)!=-1){
+                qDebug()<<"lecture rectangle";
+                x=rrect.cap(2).toInt();
+                y=rrect.cap(4).toInt();
+                w=rrect.cap(6).toInt();
+                h=rrect.cap(8).toInt();
+                r=rrect.cap(10).toDouble();
+                s=rrect.cap(12).toInt();
+                qa.setNamedColor(rrect.cap(14));
+                qb.setNamedColor(rrect.cap(16));
+                irec=true;
+            }
+
+            if(relli.indexIn(ligne)!=-1){
+                qDebug()<<"lecture rond";
+                x=relli.cap(2).toInt();
+                y=relli.cap(4).toInt();
+                w=relli.cap(6).toInt();
+                h=relli.cap(8).toInt();
+                r=relli.cap(10).toDouble();
+                s=relli.cap(12).toInt();
+                qa.setNamedColor(relli.cap(14));
+                qb.setNamedColor(relli.cap(16));
+                ielli=true;
+            }
+            if(rpath.indexIn(ligne)!=-1){
+                qDebug()<<"lecture tracé libre";
+                points=rpath.cap(3);
+                r=rpath.cap(6).toDouble();
+                s=rpath.cap(8).toInt();
+                qa.setNamedColor(rpath.cap(10));
+                ipath=true;
+            }
+            if(rpoly.indexIn(ligne)!=-1){
+                qDebug()<<"lecture polygone";
+                points=rpoly.cap(3);
+                r=rpoly.cap(6).toDouble();
+                s=rpoly.cap(8).toInt();
+                qa.setNamedColor(rpoly.cap(10));
+                qb.setNamedColor(rpoly.cap(12));
+                ipoly=true;
+            }
+            if(rtext.indexIn(ligne)!=-1){
+                qDebug()<<"lecture texte";
+                x=rtext.cap(2).toInt();
+                y=rtext.cap(4).toInt();
+                r=rtext.cap(6).toDouble();
+                font= QFont(rtext.cap(8));
+                tsize=rtext.cap(10).toInt();
+                t=rtext.cap(12);
+                itext=true;
+            }
+            if(rline.indexIn(ligne)!=-1){
+                qDebug()<<"lecture ligne";
+                x=rline.cap(2).toInt();
+                y=rline.cap(4).toInt();
+                x2=rline.cap(6).toInt();
+                y2=rline.cap(8).toInt();
+                r=rline.cap(10).toDouble();
+                s=rline.cap(12).toInt();
+                qa.setNamedColor(rline.cap(14));
+                iline=true;
+            }
+
+            QStringList word= points.split(" ",QString::SkipEmptyParts);
+
+            for (auto src : word){
+                if(xRead){
+                    coord.setX(src.toInt());
+                }else{
+                    coord.setY(src.toInt());
+                    if(!firstPointSet){
+                        poly->append(coord);
+                        path->moveTo(coord);
+                        firstPointSet=true;
+                    }else{
+                        poly->append(coord);
+                        path->lineTo(coord);
+                    }
+                }
+                xRead=!xRead;
+            }
+
+         QGraphicsItem *qi=nullptr;
+         if(irec){
+             qi=ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
+         }
+         if(ielli){
+             qi=ui->drawzone->getScene()->addEllipse(x,y,w,h,QPen(qa,s),QBrush(qb));
+         }
+         if(ipath){
+             qi=ui->drawzone->getScene()->addPath(*path,QPen(qa, s, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+         }
+         if(ipoly){
+             qi=ui->drawzone->getScene()->addPolygon(*poly,QPen(qa,s,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),QBrush(qb));
+         }
+         if(iline){
+             qi=ui->drawzone->getScene()->addLine(x,y,x2,y2,QPen(qa,s,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+         }
+         if(itext){
+             font.setPointSize(tsize);
+             qi = ui->drawzone->getScene()->addText(t,font);
+             qi->setPos(x,y);
+         }
+         if(qi){
+            qi->setFlag(QGraphicsItem::ItemIsSelectable);
+            qi->setFlag(QGraphicsItem::ItemIsMovable);
+            qi->setTransformOriginPoint(qi->boundingRect().center());
+            qi->setRotation(r);
+         }
+
+ /* ______________________________________________________________________________________________________________________________________________________ */
+ /* ______________________________________________________________________________________________________________________________________________________ */
+ /* ______________________________________________________________________________________________________________________________________________________ */
+
+    }
+    showStatusMessage("Fichier chargé");
+    return true;
 }

@@ -49,13 +49,15 @@ void drawZone::setactualTool(Tool tool){
     if(actualTool==POLYGON){
         polygons.append(*poly);
         polygon=nullptr;
-        scene->removeItem(actualPoint);
+        if(actualPoint)
+            scene->removeItem(actualPoint);
         actualPoint=nullptr;
         poly= new QPolygonF();
 
     }
     if(actualTool==FREE){
-        scene->removeItem(previewPoint);
+        if(previewPoint)
+            scene->removeItem(previewPoint);
         previewPoint=nullptr;
         if(SelItem!=nullptr)
             SelItem->setGraphicsEffect(0);
@@ -140,7 +142,7 @@ void drawZone::setactualColor2(QColor color){
             elliItem->setBrush(QBrush(actualColor2));
     }
 }
-
+QGraphicsEllipseItem *qr=nullptr;
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
     QPointF point = mapToScene(ev->pos());
@@ -213,20 +215,29 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
     }
 
     if(actualTool==CURSOR){
+
         if(SelItem){
             if(ev->buttons().testFlag(Qt::LeftButton)){
-                //int x= SelItem->shape().boundingRect().x();
-                //int y= SelItem->shape().boundingRect().y();
-                //SelItem->setPos(point.x()-x-w/2, point.y()-y-h/2);
                 SelItem->setPos(point.x()-initX,point.y()-initY);
 
             }
             if(doRotate){
-                //int a1 = SelItem->shape().boundingRect().x()-point.x();
-                int a1 = SelItem->boundingRect().x()-point.x();
-                int a2 = SelItem->boundingRect().y()-point.y();
-                //int a2 = SelItem->shape().boundingRect().y()-point.y();
-                SelItem-> setRotation(atan2(a1,a2) * -180/M_PI);
+                float a1=0,a2=0;
+                if(textItem){
+
+                    a1 = textItem->scenePos().x()-point.x();
+                    a2 = textItem->scenePos().y()-point.y();
+                    /*
+                    if(qr)
+                        scene->removeItem(qr);
+                    qr=scene->addEllipse(a1,a2,100,100,QPen(Qt::red),QBrush());
+                    */
+                }else{
+                    a1 = SelItem->boundingRect().center().x()-point.x();
+                    a2 = SelItem->boundingRect().center().y()-point.y();
+                }
+
+                SelItem-> setRotation(atan2(a2,a1) * 180/M_PI);
             }
         }
     }
@@ -275,6 +286,7 @@ bool drawZone::saveFile(const QString &fileName){
 
 void drawZone::mouseReleaseEvent(QMouseEvent *event){
     if(actualTool==FREE){
+        pathitem->shape().swap(*path);
         pathitem=nullptr;
         paths.append(*path);
         path=new QPainterPath();
@@ -285,22 +297,28 @@ void drawZone::mouseReleaseEvent(QMouseEvent *event){
 
 void drawZone::leaveEvent(QEvent * e)
 {
-    scene->removeItem(previewPoint);
+    if(previewPoint)
+        scene->removeItem(previewPoint);
     previewPoint=nullptr;
 
-    scene->removeItem(previewcircle);
+    if(previewcircle)
+        scene->removeItem(previewcircle);
     previewcircle=nullptr;
 
-    scene->removeItem(previewline);
+    if(previewline)
+        scene->removeItem(previewline);
     previewline=nullptr;
 
-    scene->removeItem(previewtriangle);
+    if(previewtriangle)
+        scene->removeItem(previewtriangle);
     previewtriangle=nullptr;
 
-    scene->removeItem(previewtext);
+    if(previewtext)
+        scene->removeItem(previewtext);
     previewtext=nullptr;
 
-    scene->removeItem(previewrectangle);
+    if(previewrectangle)
+        scene->removeItem(previewrectangle);
     previewrectangle=nullptr;
 
     MainWindow::leaveDrawZone();
@@ -422,8 +440,6 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
             case(CURSOR):
             {
                 bool somethingSelected=false;
-                QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect();
-                effect->setBlurRadius(10);
 
                 foreach (QGraphicsItem *item, scene->items()) {
                     if(item->contains(item->mapFromScene(QPointF(point.x(),point.y())))){
@@ -431,11 +447,12 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                         doRotate=false;
                          if(SelItem!=nullptr){
                              centerPointSet=false;
-                             SelItem->setGraphicsEffect(0);
+                             SelItem->setSelected(false);
                              qDebug()<<"Changement d'objet sélectionné";
                          }
                          SelItem=item; 
-                         item->setGraphicsEffect(effect);
+                         //item->setGraphicsEffect(effect);
+                         item->setSelected(true);
                          initX=point.x()-item->x();
                          initY=point.y()-item->y();
 
@@ -494,14 +511,13 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
 
                 if(!somethingSelected)
                     if(SelItem!=nullptr){
-                        SelItem->setGraphicsEffect(0);
+                        SelItem->setSelected(false);
                         SelItem=nullptr;
                         doRotate=false;
                         centerPointSet=false;
                         emit actualToolShowProperty(CURSOR);
                     }
                 break;
-                delete effect;
             }
             default:
             break;
