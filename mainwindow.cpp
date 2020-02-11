@@ -7,6 +7,8 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QFileSystemModel>
+#include <QDir>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 
@@ -46,6 +48,32 @@ MainWindow::MainWindow(QWidget *parent)
 
     noPropertyToolSelected();
     imageToolSelected(false);
+
+    folderModel = new QFileSystemModel(this);
+    folderModel->setRootPath("/");
+    folderModel->setFilter(QDir::AllDirs|QDir::NoDotAndDotDot);
+
+    fileModel= new QFileSystemModel(this);
+    fileModel->setRootPath("/");
+    fileModel->setFilter(QDir::Files|QDir::NoDotAndDotDot);
+    QStringList filters;
+    filters << "*.gif" << "*.jpg" << "*.jpg" << "*.jpeg" << "*.png" << "*.tiff" << "*.bmp" << "*.dib" << "*.svg" << "*.svgz" << "*.ico" << "*.wbmp"<< "*.webp" << "*.icns" << "*.bpm" << "*.ppm" << "*.pgm" << "*.tga" << "*.icb" << "*.tpic" << "*.vda" << "*.vst" << "*.xbm" << "*.xpm";
+    fileModel->setNameFilters(filters);
+    fileModel->setNameFilterDisables(false);
+
+    ui->ImagelistView->setModel(fileModel);
+    ui->ImagelistView->setViewMode(QListView::IconMode);
+    ui->ImagelistView->setIconSize(QSize(128,128));
+    ui->ImagelistView->setResizeMode(QListView::Adjust);
+
+    ui->treeFolder->header()->hide();
+    ui->treeFolder->setModel(folderModel);
+    ui->treeFolder->setRootIndex(folderModel->index(QDir::homePath()));
+    ui->treeFolder->hideColumn(1);
+    ui->treeFolder->hideColumn(2);
+    ui->treeFolder->hideColumn(3);
+
+
 }
 
 void MainWindow::sharedPropertyInit(){
@@ -155,8 +183,12 @@ void MainWindow::clearFile(){
     scaled = true;
     ui->drawzone->clearScene();
     ui->drawzone->show();
-    ui->scrollAreaWidgetContents->resize(ui->scrollArea->width(),ui->scrollArea->width());
+    ui->scrollAreaWidgetContents->resize(ui->scrollArea->width()+2,ui->scrollArea->width()+2);
     ui->drawzone->setGeometry(0,0,ui->scrollArea->width(),ui->scrollArea->width());
+    ui->drawzone->getScene()->setSceneRect(0,0,ui->scrollArea->width(),ui->scrollArea->width());
+    ui->drawzone->setSceneRect(0,0,ui->scrollArea->width(),ui->scrollArea->width());
+    ui->drawzone->setWidht(ui->scrollArea->width());
+    ui->drawzone->setHeight(ui->scrollArea->height());
     ui->drawzone->updateGeometry();
     ui->drawzone->selectNothing();
     ui->drawzone->setactualTool(CURSOR);
@@ -316,6 +348,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
 void MainWindow::shapeToolSelected(){
     ui->actualProperty->setCurrentIndex(0);
+    lineChecked(false);
 }
 
 void MainWindow::noPropertyToolSelected(){
@@ -354,8 +387,12 @@ void MainWindow::propertyButtonClicked(){
     Propiete prop;
     prop.setModal(true);
     if(prop.exec() == 1){
-        ui->scrollAreaWidgetContents->resize(prop.getWidth(),prop.getHeight());
+        ui->scrollAreaWidgetContents->resize(prop.getWidth()+2,prop.getHeight()+2);
         ui->drawzone->setGeometry(0,0,prop.getWidth(),prop.getHeight());
+        ui->drawzone->setSceneRect(0,0,prop.getWidth(),prop.getHeight());
+        ui->drawzone->getScene()->setSceneRect(0,0,prop.getWidth(),prop.getHeight());
+        ui->drawzone->setWidht(prop.getWidth());
+        ui->drawzone->setHeight(prop.getHeight());
         ui->drawzone->updateGeometry();
     }
     QVariant larg = ui->drawzone->width();
@@ -427,7 +464,7 @@ void MainWindow::on_pictureButton_clicked()
 void MainWindow::imageToolSelected(bool selected){
     if(selected){
         ui->imageWidget->show();
-        noPropertyToolSelected();
+        ui->actualProperty->setCurrentIndex(3);
     }else
         ui->imageWidget->hide();
 }
@@ -506,9 +543,12 @@ bool MainWindow::loadImportedFile(const QString &fileName){
         //redimensionnement de la zone de travail
         if(scaled)
         {
-            ui->scrollAreaWidgetContents->resize(pixm.width(),pixm.height());
+            ui->scrollAreaWidgetContents->resize(pixm.width()+2,pixm.height()+2);
             ui->drawzone->setGeometry(0,0,pixm.width(),pixm.height());
             ui->drawzone->setSceneRect(0,0,pixm.width(),pixm.height());
+            ui->drawzone->getScene()->setSceneRect(0,0,pixm.width(),pixm.height());
+            ui->drawzone->setWidht(pixm.width());
+            ui->drawzone->setHeight(pixm.height());
             ui->drawzone->updateGeometry();
             scaled = false;
 //            ui->drawzone->setLayout(0);
@@ -597,12 +637,12 @@ bool MainWindow::loadFile(const QString &fileName)
             QPointF coord;
             QFont font;
 
-            QRegExp rrect("(rect )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
-            QRegExp relli("(elli )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp rrect("(rect )([-\\d]+)( )([-\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
+            QRegExp relli("(elli )([-\\d]+)( )([-\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
             QRegExp rpath("(path )([\\{ ])([-. \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)");
             QRegExp rpoly("(poly )([\\{ ])([-. \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
-            QRegExp rtext("(text )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
-            QRegExp rline("(line )([\\d]+)( )([\\d]+)( )([\\d]+)( )([\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
+            QRegExp rtext("(text )([-\\d]+)( )([-\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
+            QRegExp rline("(line )([-\\d]+)( )([-\\d]+)( )([-\\d]+)( )([-\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
 
             //le premier mot capturé commence à 1
             if(rrect.indexIn(ligne)!=-1){
@@ -723,4 +763,11 @@ bool MainWindow::loadFile(const QString &fileName)
     }
     showStatusMessage("Fichier chargé");
     return true;
+}
+
+
+void MainWindow::on_treeFolder_clicked(const QModelIndex &index)
+{
+    QString mPath = folderModel->fileInfo(index).absoluteFilePath();
+    ui->ImagelistView->setRootIndex(fileModel->setRootPath(mPath));
 }

@@ -13,6 +13,9 @@
 #include "mainwindow.h"
 #include "drawzone.h"
 
+static int largeur;
+static int hauteur;
+
 drawZone::drawZone(QWidget *parent) :
     QGraphicsView(parent)
 {
@@ -67,7 +70,7 @@ void drawZone::setactualTool(Tool tool){
             scene->removeItem(previewPoint);
         previewPoint=nullptr;
         if(SelItem!=nullptr)
-            SelItem->setGraphicsEffect(0);
+            SelItem->setSelected(false);
         SelItem=nullptr;
     }
 
@@ -78,6 +81,26 @@ void drawZone::setactualTool(Tool tool){
     if(tool==FREE){
         setCursor(Qt::BlankCursor);
     }
+}
+
+void drawZone::setWidht(int w){
+
+    largeur=w;
+}
+
+void drawZone::setHeight(int h){
+
+    hauteur=h;
+}
+
+int drawZone::getWidth(){
+    return largeur;
+
+}
+
+int drawZone::getHeight(){
+    return hauteur;
+
 }
 
 void drawZone::setactualSize(int value){
@@ -149,7 +172,7 @@ void drawZone::setactualColor2(QColor color){
             elliItem->setBrush(QBrush(actualColor2));
     }
 }
-QGraphicsEllipseItem *qr=nullptr;
+
 void drawZone::mouseMoveEvent(QMouseEvent *ev)
 {
     QPointF point = mapToScene(ev->pos());
@@ -229,7 +252,7 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
 
             }
             if(doRotate){
-                float a1=0,a2=0;
+                double a1=0,a2=0;
                 if(textItem){
 
                     a1 = textItem->scenePos().x()-point.x();
@@ -294,7 +317,7 @@ bool drawZone::saveFile(const QString &fileName){
 
 void drawZone::mouseReleaseEvent(QMouseEvent *event){
     if(actualTool==FREE){
-        pathitem->shape().swap(*path);
+        //pathitem->shape().swap(*path);
         pathitem=nullptr;
         paths.append(*path);
         path=new QPainterPath();
@@ -460,7 +483,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                          }
                          SelItem=item; 
                          //item->setGraphicsEffect(effect);
-                         item->setSelected(true);
+                         SelItem->setSelected(true);
                          initX=point.x()-item->x();
                          initY=point.y()-item->y();
 
@@ -649,10 +672,11 @@ void drawZone::CopyItem()
         {
              double textX = textItem->x();
              double textY = textItem->y();
+             QFont font = textItem->font();
 
              QString t = textItem->toPlainText().simplified();
            // ui->drawzone->getScene()->addText();
-             QGraphicsTextItem *qti =scene->addText(t);
+             QGraphicsTextItem *qti =scene->addText(t,font);
                           qti->setPos(textX,textY);
             return;
         }

@@ -12,10 +12,14 @@
 
 class drawZone : public QGraphicsView
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     explicit drawZone(QWidget *parent = 0);
     ~drawZone() override;
+    static int getWidth();
+    static int getHeight();
+    void setWidht(int w);
+    void setHeight(int h);
     void setactualTool(Tool);
     void setactualColor(QColor);
     void setactualColor2(QColor);
@@ -85,7 +89,7 @@ private :
      QGraphicsTextItem* textItem;
 
      //pour le deplacement
-     int initX,initY;
+     double initX,initY;
 
      //pour la rotation
      bool centerPointSet=false;
