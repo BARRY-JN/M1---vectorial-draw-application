@@ -10,6 +10,7 @@
 #include <QFileSystemModel>
 #include <QDir>
 #include <QUndoView>
+#include <QGraphicsPixmapItem>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "imageloadingtask.h"
@@ -60,10 +61,9 @@ MainWindow::MainWindow(QWidget *parent)
     folderModel->setRootPath("/");
     folderModel->setFilter(QDir::AllDirs|QDir::NoDotAndDotDot);
 
-    fileModel= new QFileSystemModel(this);
-    fileModel->setRootPath("/");
-    fileModel->setFilter(QDir::Files|QDir::NoDotAndDotDot);
-    fileModel->setNameFilterDisables(false);
+    QMovie *movie = new QMovie(":/Icons/ressources/tuto.gif");
+    ui->tutoLabel->setMovie(movie);
+    movie->start();
 
     ui->ImagelistView->setViewMode(QListView::IconMode);
     ui->ImagelistView->setIconSize(QSize(128,128));
@@ -207,16 +207,6 @@ void MainWindow::clearFile(bool reset_size){
     ui->drawzone->setactualTool(CURSOR);
 }
 
-void MainWindow::openFile()
-{
-    const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-
-    QFileDialog dialog;
-    QString fileName = dialog.getOpenFileName(this, "Ouvrir un fichier", picturesLocations.last(), "Dessin vectoriel (*.dv)");
-    if (!fileName.isEmpty())
-       loadFile(fileName);
-}
-
 static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
 {
     static bool firstDialog = true;
@@ -231,6 +221,8 @@ static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMo
            ? QImageReader::supportedMimeTypes() : QImageWriter::supportedMimeTypes();
        for (const QByteArray &mimeTypeName : supportedMimeTypes)
            mimeTypeFilters.append(mimeTypeName);
+
+       //qDebug()<<mimeTypeFilters;
        mimeTypeFilters.sort();
        dialog.setMimeTypeFilters(mimeTypeFilters);
        dialog.selectMimeTypeFilter("image/jpeg");
@@ -238,18 +230,20 @@ static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMo
            dialog.setDefaultSuffix("jpg");
 }
 
-
-void MainWindow::importFile(const QString &fileName)
+void MainWindow::openFile()
 {
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
-                             tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
-        return;
+    const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    QFileDialog dialog;
+    initializeImageFileDialog(dialog,QFileDialog::AcceptOpen);
+    QString fileName = dialog.getOpenFileName(this, "Ouvrir un fichier", picturesLocations.last(), "Dessin vectoriel (*.fdv);;Images (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm *.svg)");
+    if (!fileName.isEmpty()){
+        if(fileName.contains(".fdv"))
+            loadFile(fileName);
+        else{
+            newFile();
+            loadImportedFile(fileName);
+        }
     }
-
-    showStatusMessage(tr("Fichier importé"));
 }
 
 bool MainWindow::save()
@@ -263,13 +257,17 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
+    QString filePath;
     const QStringList picturesLocations = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    QFileDialog dialog(this, "Ouvrir un fichier", picturesLocations.last(), "Dessin vectoriel (*.dv)");
+    QFileDialog dialog(this, "Enregistrer un fichier", picturesLocations.last(), "Dessin vectoriel (*.fdv)");
+
         dialog.setWindowModality(Qt::WindowModal);
         dialog.setAcceptMode(QFileDialog::AcceptSave);
         if (dialog.exec() != QDialog::Accepted)
             return false;
-        return saveFile(dialog.selectedFiles().first());
+        filePath=dialog.selectedFiles().first();
+        dialog.setDefaultSuffix("fdv");
+        return saveFile(filePath);
 }
 
 
@@ -284,18 +282,19 @@ bool MainWindow::saveFile(const QString &fileName)
         return false;
     }
     QString it, coord;
-    bool warning_show=false;
     it.append("scene_size{"+QString::number(ui->drawzone->getScene()->width())+","+QString::number(ui->drawzone->getScene()->height())+"}\n");
     foreach (QGraphicsItem *item, ui->drawzone->getScene()->items()){
         imgItem =dynamic_cast<QGraphicsPixmapItem*>(item);
         if(imgItem){
-            if(!warning_show){
-                QMessageBox::critical(this, tr("Sauvegarde d'images externes"),
-                                           tr("Le logiciel ne prend pas en charge la sauvegarde d'images\n"
-                                              "externes dans son format propriétaire."),
-                                           QMessageBox::Ok);
-                warning_show=true;
-            }
+            qDebug()<<"sauvegarder image";
+            it.append("img "+QString::number(imgItem->x())+" "+QString::number(imgItem->y())+" "+QString::number(imgItem->rotation())+" { ");
+            QBuffer buffer;
+            buffer.open(QIODevice::WriteOnly);
+            imgItem->pixmap().save(&buffer, "PNG");
+            auto const encoded = buffer.data().toBase64();
+            QString imgData = QLatin1String(encoded);
+            it.append(imgData);
+            it.append(" }");
         }
 
         pathItem = dynamic_cast<QGraphicsPathItem*>(item);
@@ -491,6 +490,9 @@ void MainWindow::imageToolSelected(bool selected){
     if(selected){
         ui->imageWidget->show();
         ui->actualProperty->setCurrentIndex(3);
+        ui->tutoLabel->show();
+        ui->tutoLabel2->setText("Sélectionnez un dossier pour pouvoir insérer une/des image(s)");
+        ui->ImagelistView->hide();
     }else
         ui->imageWidget->hide();
 }
@@ -540,6 +542,7 @@ bool MainWindow::saveExportFile(const QString &fileName){
         }
 }
 
+/*
 void MainWindow::on_actionImporter_triggered()
 {
     if(ui->drawzone->isHidden()){
@@ -551,6 +554,7 @@ void MainWindow::on_actionImporter_triggered()
         initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
         while (dialog.exec() == QDialog::Accepted && !loadImportedFile(dialog.selectedFiles().first())) {}
 }
+*/
 
 bool MainWindow::loadImportedFile(const QString &fileName){
 
@@ -577,10 +581,11 @@ bool MainWindow::loadImportedFile(const QString &fileName){
             ui->drawzone->setHeight(pixm.height());
             ui->drawzone->updateGeometry();
             scaled = false;
-//            ui->drawzone->setLayout(0);
         }
 
-        ui->drawzone->addpicture(pixm);
+        //Pour indiquer que cette image est une image de fond, on lui donne une valeur de z facilement discriminatoire
+        QGraphicsPixmapItem *qpip = ui->drawzone->getScene()->addPixmap(pixm);
+        qpip->setZValue(-1000);
         setCurrentFile(fileName);
         return true;
     }
@@ -679,14 +684,14 @@ bool MainWindow::loadFile(const QString &fileName)
         //traitement de la ligne
         ligne = flux.readLine();
 
-            bool isize=false, ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
+            bool isize=false, iimg=false, ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
             int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0,drawW=0, drawH=0;
             double r=-1.0;
             QColor qa, qb;
             QString t;
             QPolygonF *poly=new QPolygonF();
             QPainterPath *path=new QPainterPath();
-            QString points;
+            QString points, imgData;
             QPointF coord;
             QFont font;
 
@@ -697,6 +702,7 @@ bool MainWindow::loadFile(const QString &fileName)
             QRegExp rpoly("(poly )([\\{ ])([-. \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
             QRegExp rtext("(text )([-\\d]+)( )([-\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
             QRegExp rline("(line )([-\\d]+)( )([-\\d]+)( )([-\\d]+)( )([-\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
+            QRegExp rimag("(img )([\\d]+)( )([\\d]+)( )([-.\\d]+)([\\{ ])([^\\}]+)([ \\}])");
 
             if(rsize.indexIn(ligne)!=-1){
                 qDebug()<<"Taille zone dessin";
@@ -705,6 +711,16 @@ bool MainWindow::loadFile(const QString &fileName)
                 isize=true;
 
             }
+
+            if(rimag.indexIn(ligne)!=-1){
+                qDebug()<<"lecture image";
+                x=rimag.cap(2).toInt();
+                y=rimag.cap(4).toInt();
+                r=rimag.cap(6).toDouble();
+                imgData=rimag.cap(8);
+                iimg=true;
+            }
+
             //le premier mot capturé commence à 1
             if(rrect.indexIn(ligne)!=-1){
                 qDebug()<<"lecture rectangle";
@@ -795,6 +811,13 @@ bool MainWindow::loadFile(const QString &fileName)
              clearFile(false);
              setDrawzoneSize(drawW,drawH);
          }
+         if(iimg){
+             auto const encoded = imgData.toLatin1();
+             QPixmap p;
+             p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
+             qi=ui->drawzone->getScene()->addPixmap(p);
+             qi->setPos(x,y);
+         }
          if(irec){
              qi=ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
          }
@@ -834,6 +857,10 @@ bool MainWindow::loadFile(const QString &fileName)
 
 void MainWindow::on_treeFolder_clicked(const QModelIndex &index)
 {
+
+    ui->tutoLabel->hide();
+    ui->tutoLabel2->setText("Glissez-déposez une image sur la zone de dessin");
+    ui->ImagelistView->show();
 
     qDeleteAll(m_mapFileNameListWidgetItem);
     m_mapFileNameListWidgetItem.clear();
@@ -887,13 +914,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         QDrag *drag = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
 
-        mimeData->setText(mPath+"/"+filename);
+        QList<QUrl> url;
+        url.append(QUrl(mPath+"/"+filename));
+        mimeData->setUrls(url);
         drag->setMimeData(mimeData);
         drag->setPixmap(selectedItem->icon().pixmap(128,128));
 
         Qt::DropAction dropAction = drag->exec();
         if(dropAction==Qt::MoveAction||dropAction==Qt::CopyAction)
-            qDebug()<<"yes !";
+            qDebug()<<"Drag & drop effectué";
 
         //do something
     }

@@ -23,6 +23,7 @@
         <file>ressources/drawings.png</file>
         <file>ressources/mouse_pointer.png</file>
         <file>ressources/draw_polyline.png</file>
+        <file>ressources/tuto.gif</file>
     </qresource>
     <qresource prefix="/">
         <file>ressources/Redo.png</file>

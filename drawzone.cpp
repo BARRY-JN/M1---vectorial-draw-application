@@ -398,12 +398,16 @@ void drawZone::mouseReleaseEvent(QMouseEvent *event){
 
 void drawZone::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasText())
+    if (event->mimeData()->hasUrls())
         event->acceptProposedAction();
 }
 
 void drawZone::dropEvent(QDropEvent *event){
-    QGraphicsPixmapItem *qpi = scene->addPixmap(event->mimeData()->text());
+    QList<QUrl> url = event->mimeData()->urls();
+    QGraphicsPixmapItem *qpi = scene->addPixmap(url.first().toString());
+    qpi->setFlag(QGraphicsTextItem::ItemIsSelectable);
+    qpi->setFlag(QGraphicsTextItem::ItemIsMovable);
+    qpi->setFlag(QGraphicsTextItem::ItemIsFocusable);
     qpi->setPos(event->pos());
     event->acceptProposedAction();
 
@@ -564,7 +568,8 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 bool somethingSelected=false;
 
                 foreach (QGraphicsItem *item, scene->items()) {
-                    if(item->contains(item->mapFromScene(QPointF(point.x(),point.y())))){
+                    if(item->contains(item->mapFromScene(QPointF(point.x(),point.y())))&&item->zValue()!=-1000){
+
                         somethingSelected=true;
                         doRotate=false;
                          if(SelItem!=nullptr){

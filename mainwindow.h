@@ -30,7 +30,6 @@ public:
     ~MainWindow() override;
     static void setCursorLabelCoord(QMouseEvent*);
     static void leaveDrawZone();
-    void importFile(const QString &fileName);
     void showStatusMessage(const QString &msg);
     void clearFile(bool);
     QUndoStack *undoStack;
@@ -75,7 +74,7 @@ private slots:
     void on_actionZoomPlus_triggered();
     void on_actionZoomMoins_triggered();
     void on_actionExporter_triggered();
-    void on_actionImporter_triggered();
+    //void on_actionImporter_triggered();
 
 
 
