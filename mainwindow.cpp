@@ -284,11 +284,18 @@ bool MainWindow::saveFile(const QString &fileName)
         return false;
     }
     QString it, coord;
+    bool warning_show=false;
     it.append("scene_size{"+QString::number(ui->drawzone->getScene()->width())+","+QString::number(ui->drawzone->getScene()->height())+"}\n");
     foreach (QGraphicsItem *item, ui->drawzone->getScene()->items()){
         imgItem =dynamic_cast<QGraphicsPixmapItem*>(item);
         if(imgItem){
-            //it.append(imgItem->pixmap().
+            if(!warning_show){
+                QMessageBox::critical(this, tr("Sauvegarde d'images externes"),
+                                           tr("Le logiciel ne prend pas en charge la sauvegarde d'images\n"
+                                              "externes dans son format propriétaire."),
+                                           QMessageBox::Ok);
+                warning_show=true;
+            }
         }
 
         pathItem = dynamic_cast<QGraphicsPathItem*>(item);
