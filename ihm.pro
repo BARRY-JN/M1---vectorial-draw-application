@@ -17,12 +17,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     drawzone.cpp \
+    imageloadingtask.cpp \
     main.cpp \
     mainwindow.cpp \
     propiete.cpp
 
 HEADERS += \
     drawzone.h \
+    imageloadingtask.h \
     mainwindow.h \
     propiete.h
 

@@ -21,8 +21,10 @@ drawZone::drawZone(QWidget *parent) :
 {
     qDebug() << "init drawZone" ;
     setMouseTracking(true);
+    setAcceptDrops(true);
     scene = new QGraphicsScene(this);
     setScene(scene);
+
     focusPolicy();
     qduplicate=new QAction("Dupliquer", this);
     qdelete=new QAction("Supprimer", this);
@@ -324,6 +326,23 @@ void drawZone::mouseReleaseEvent(QMouseEvent *event){
         scene->removeItem(previewPoint);
         previewPoint=nullptr;
     }
+
+    if(actualTool==IMAGE){
+
+    }
+}
+
+void drawZone::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasText())
+        event->acceptProposedAction();
+}
+
+void drawZone::dropEvent(QDropEvent *event){
+    QGraphicsPixmapItem *qpi = scene->addPixmap(event->mimeData()->text());
+    qpi->setPos(event->pos());
+    event->acceptProposedAction();
+
 }
 
 void drawZone::leaveEvent(QEvent * e)

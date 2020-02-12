@@ -43,6 +43,8 @@ protected:
     void mousePressEvent(QMouseEvent*) override;
     void leaveEvent(QEvent*) override;
     void keyPressEvent( QKeyEvent*) override;
+    void dropEvent(QDropEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
     void showcontextmenu();
 
 private slots:

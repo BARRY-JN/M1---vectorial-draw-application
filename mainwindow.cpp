@@ -11,6 +11,7 @@
 #include <QDir>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
+#include "imageloadingtask.h"
 
 Point *mouse_coord;
 QLabel *labMouseCoord;
@@ -46,6 +47,10 @@ MainWindow::MainWindow(QWidget *parent)
     sharedPropertyInit();
     drawZoneSignalInit();
 
+    ui->imageWidget->setFloating(true);
+    ui->drawzone->setAcceptDrops(true);
+    setAcceptDrops(true);
+
     noPropertyToolSelected();
     imageToolSelected(false);
 
@@ -56,15 +61,16 @@ MainWindow::MainWindow(QWidget *parent)
     fileModel= new QFileSystemModel(this);
     fileModel->setRootPath("/");
     fileModel->setFilter(QDir::Files|QDir::NoDotAndDotDot);
-    QStringList filters;
-    filters << "*.gif" << "*.jpg" << "*.jpg" << "*.jpeg" << "*.png" << "*.tiff" << "*.bmp" << "*.dib" << "*.svg" << "*.svgz" << "*.ico" << "*.wbmp"<< "*.webp" << "*.icns" << "*.bpm" << "*.ppm" << "*.pgm" << "*.tga" << "*.icb" << "*.tpic" << "*.vda" << "*.vst" << "*.xbm" << "*.xpm";
-    fileModel->setNameFilters(filters);
     fileModel->setNameFilterDisables(false);
 
-    ui->ImagelistView->setModel(fileModel);
     ui->ImagelistView->setViewMode(QListView::IconMode);
     ui->ImagelistView->setIconSize(QSize(128,128));
     ui->ImagelistView->setResizeMode(QListView::Adjust);
+    ui->ImagelistView->setDragEnabled(true);
+    ui->ImagelistView->setDragDropMode( QAbstractItemView::DragDrop);
+    ui->ImagelistView->setGridSize(QSize(168,148));
+    ui->ImagelistView->setMovement(QListView::Snap);
+    ui->ImagelistView->viewport()->installEventFilter(this);
 
     ui->treeFolder->header()->hide();
     ui->treeFolder->setModel(folderModel);
@@ -619,12 +625,12 @@ bool MainWindow::loadFile(const QString &fileName)
     clearFile();
     QTextStream flux(&file);
     QString ligne,src;
+    qDebug()<<"Traitement du fichier";
 
     while(! flux.atEnd())
     {
         //traitement de la ligne
         ligne = flux.readLine();
-        qDebug()<<"Traitement du fichier";
 
             bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
             int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0;
@@ -768,6 +774,68 @@ bool MainWindow::loadFile(const QString &fileName)
 
 void MainWindow::on_treeFolder_clicked(const QModelIndex &index)
 {
-    QString mPath = folderModel->fileInfo(index).absoluteFilePath();
-    ui->ImagelistView->setRootIndex(fileModel->setRootPath(mPath));
+
+    qDeleteAll(m_mapFileNameListWidgetItem);
+    m_mapFileNameListWidgetItem.clear();
+    mPath = folderModel->fileInfo(index).absoluteFilePath();
+    QStringList filters;
+    filters << "*.gif" << "*.jpg" << "*.jpg" << "*.jpeg" << "*.JPEG" << "*.png" << "*.tiff" << "*.bmp" << "*.dib" << "*.svg" << "*.svgz" << "*.ico" << "*.wbmp"<< "*.webp" << "*.icns" << "*.bpm" << "*.ppm" << "*.pgm" << "*.tga" << "*.icb" << "*.tpic" << "*.vda" << "*.vst" << "*.xbm" << "*.xpm";
+    QDir directory(mPath);
+    QStringList images = directory.entryList(filters,QDir::Files);
+
+
+    foreach(QString filename, images) {
+        QString fullpath=mPath+"/"+filename;
+        if (m_mapFileNameListWidgetItem.find(filename) != m_mapFileNameListWidgetItem.end())
+                    continue;
+
+                QListWidgetItem *item = new QListWidgetItem(ui->ImagelistView);
+                item->setSizeHint(QSize(150, 150));
+                ui->ImagelistView->addItem(item);
+                m_mapFileNameListWidgetItem[fullpath] = item;
+
+                ImageLoadingTask *sub = new ImageLoadingTask(filename,fullpath);
+                connect(sub, SIGNAL(finished(QString, QString, QImage, QByteArray)), this, SLOT(imageLoaded(QString, QString, QImage, QByteArray)), Qt::QueuedConnection);
+                QThreadPool::globalInstance()->start(sub);
+
+    }
+}
+
+void MainWindow::imageLoaded(QString fileName, QString fullPath, QImage img, QByteArray bytes)
+{
+    QListWidgetItem *item = m_mapFileNameListWidgetItem[fullPath];
+    if (!item) {
+        return;
+    }
+    item->setText(fileName);
+    item->setIcon(QIcon(QPixmap::fromImage(img)));
+    showStatusMessage("icone "+fileName+" chargée !");
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if(obj!=ui->ImagelistView->viewport())
+        return false;
+    QMouseEvent *ev = static_cast<QMouseEvent *>(event);
+    if (event->type() == QEvent::MouseButtonPress)
+    {
+        //QModelIndex index = ;
+        //QString itemText = index.data(Qt::DisplayRole).toString();
+        QListWidgetItem *selectedItem;
+        selectedItem = ui->ImagelistView->itemAt(ev->x(),ev->y());
+        QString filename = ui->ImagelistView->itemAt(ev->x(),ev->y())->data(Qt::DisplayRole).toString();
+        QDrag *drag = new QDrag(this);
+        QMimeData *mimeData = new QMimeData;
+
+        mimeData->setText(mPath+"/"+filename);
+        drag->setMimeData(mimeData);
+        drag->setPixmap(selectedItem->icon().pixmap(128,128));
+
+        Qt::DropAction dropAction = drag->exec();
+        if(dropAction==Qt::MoveAction||dropAction==Qt::CopyAction)
+            qDebug()<<"yes !";
+
+        //do something
+    }
+        return QObject::eventFilter(obj, event);
 }

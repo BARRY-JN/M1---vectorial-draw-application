@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QGraphicsItem>
 #include <QFileSystemModel>
+#include <QListWidgetItem>
 #include "propiete.h"
 
 QT_BEGIN_NAMESPACE
@@ -84,6 +85,10 @@ private slots:
     void setDrawzoneSize(int width);
 
     void on_treeFolder_clicked(const QModelIndex &index);
+    void imageLoaded(QString , QString , QImage , QByteArray );
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -113,5 +118,7 @@ private:
     //Pour l'insertion d'images
     QFileSystemModel *folderModel;
     QFileSystemModel *fileModel;
+    QMap<QString, QListWidgetItem*> m_mapFileNameListWidgetItem;
+    QString mPath;
 };
 #endif // MAINWINDOW_H
