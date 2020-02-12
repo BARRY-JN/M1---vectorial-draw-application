@@ -9,6 +9,8 @@
 #include <QColor>
 #include <QGraphicsDropShadowEffect>
 #include "mainwindow.h"
+#include <QUndoView>
+#include <QUndoCommand>
 
 class drawZone : public QGraphicsView
 {
@@ -36,6 +38,13 @@ public:
     QGraphicsItem* getActItem();
     QGraphicsScene *getScene();
     void selectNothing();
+    QUndoStack* getactualStack();
+    QUndoCommand* AddShapeCommand(QGraphicsItem *item);
+    QUndoStack *undoStack;
+    //QUndoView *undoView;
+    QPointF initialPosition;
+    void undo();
+    void redo();
 
 protected:
     void mouseMoveEvent(QMouseEvent*) override;
@@ -106,6 +115,11 @@ private :
      QGraphicsTextItem* previewtext=nullptr;
 
      QPointF PreviousPoint;
+     QGraphicsEllipseItem *tmp_ellipse=nullptr;
+     QList<QGraphicsItem*> RemovedItems;
+
+
+
 
 
 signals:

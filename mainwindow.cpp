@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QFileSystemModel>
 #include <QDir>
+#include <QUndoView>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "imageloadingtask.h"
@@ -46,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     sharedPropertyInit();
     drawZoneSignalInit();
+    createUndoView();
 
     ui->imageWidget->setFloating(true);
     ui->drawzone->setAcceptDrops(true);
@@ -105,6 +107,9 @@ void MainWindow::dockWidgetInit(){
     connect(ui->actionAide, SIGNAL(triggered()),this, SLOT(helpButtonClicked()));
     connect(ui->actionOutils, SIGNAL(triggered()),this, SLOT(toolButtonClicked()));
     connect(ui->actionProprietes, SIGNAL(triggered()),this, SLOT(propertyButtonClicked()));
+    connect(ui->actionAnnuler, SIGNAL(triggered()),this, SLOT(undoButtonClicked()));
+    connect(ui->actionR_tablir, SIGNAL(triggered()),this, SLOT(redoButtonClicked()));
+    connect(ui->actionListe_D_actions, SIGNAL(triggered()),SLOT(ActionListClicked()));
 
 }
 
@@ -181,21 +186,23 @@ void MainWindow::actualToolChangeProperty(Tool tool){
 
 void MainWindow::newFile()
 {
-    clearFile();
+    clearFile(true);
 }
 
-void MainWindow::clearFile(){
+void MainWindow::clearFile(bool reset_size){
     isSaved = false;
     scaled = true;
     ui->drawzone->clearScene();
     ui->drawzone->show();
-    ui->scrollAreaWidgetContents->resize(ui->scrollArea->width()+2,ui->scrollArea->width()+2);
-    ui->drawzone->setGeometry(0,0,ui->scrollArea->width(),ui->scrollArea->width());
-    ui->drawzone->getScene()->setSceneRect(0,0,ui->scrollArea->width(),ui->scrollArea->width());
-    ui->drawzone->setSceneRect(0,0,ui->scrollArea->width(),ui->scrollArea->width());
-    ui->drawzone->setWidht(ui->scrollArea->width());
-    ui->drawzone->setHeight(ui->scrollArea->height());
-    ui->drawzone->updateGeometry();
+    if(reset_size){
+        ui->scrollAreaWidgetContents->resize(ui->scrollArea->width()+2,ui->scrollArea->height()+2);
+        ui->drawzone->setGeometry(0,0,ui->scrollArea->width(),ui->scrollArea->height());
+        ui->drawzone->getScene()->setSceneRect(0,0,ui->scrollArea->width(),ui->scrollArea->height());
+        ui->drawzone->setSceneRect(0,0,ui->scrollArea->width(),ui->scrollArea->height());
+        ui->drawzone->setWidht(ui->scrollArea->width());
+        ui->drawzone->setHeight(ui->scrollArea->height());
+        ui->drawzone->updateGeometry();
+    }
     ui->drawzone->selectNothing();
     ui->drawzone->setactualTool(CURSOR);
 }
@@ -230,7 +237,6 @@ static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMo
        if (acceptMode == QFileDialog::AcceptSave)
            dialog.setDefaultSuffix("jpg");
 }
-
 
 
 void MainWindow::importFile(const QString &fileName)
@@ -278,7 +284,13 @@ bool MainWindow::saveFile(const QString &fileName)
         return false;
     }
     QString it, coord;
+    it.append("scene_size{"+QString::number(ui->drawzone->getScene()->width())+","+QString::number(ui->drawzone->getScene()->height())+"}\n");
     foreach (QGraphicsItem *item, ui->drawzone->getScene()->items()){
+        imgItem =dynamic_cast<QGraphicsPixmapItem*>(item);
+        if(imgItem){
+            //it.append(imgItem->pixmap().
+        }
+
         pathItem = dynamic_cast<QGraphicsPathItem*>(item);
         if(pathItem){
             coord.append("{ ");
@@ -383,9 +395,16 @@ void MainWindow::toolButtonClicked(){
     }
 }
 
-void MainWindow::setDrawzoneSize(int width){
-    ui->scrollAreaWidgetContents->resize(width,width);
-    ui->drawzone->setGeometry(0,0,width,width);
+void MainWindow::setDrawzoneSize(int width, int height){
+    ui->scrollAreaWidgetContents->resize(width,height);
+    ui->drawzone->setGeometry(0,0,width,height);
+    ui->drawzone->updateGeometry();
+    ui->scrollAreaWidgetContents->resize(width+2,height+2);
+    ui->drawzone->setGeometry(0,0,width,height);
+    ui->drawzone->setSceneRect(0,0,width,height);
+    ui->drawzone->getScene()->setSceneRect(0,0,width,height);
+    ui->drawzone->setWidht(width);
+    ui->drawzone->setHeight(height);
     ui->drawzone->updateGeometry();
 }
 
@@ -393,13 +412,7 @@ void MainWindow::propertyButtonClicked(){
     Propiete prop;
     prop.setModal(true);
     if(prop.exec() == 1){
-        ui->scrollAreaWidgetContents->resize(prop.getWidth()+2,prop.getHeight()+2);
-        ui->drawzone->setGeometry(0,0,prop.getWidth(),prop.getHeight());
-        ui->drawzone->setSceneRect(0,0,prop.getWidth(),prop.getHeight());
-        ui->drawzone->getScene()->setSceneRect(0,0,prop.getWidth(),prop.getHeight());
-        ui->drawzone->setWidht(prop.getWidth());
-        ui->drawzone->setHeight(prop.getHeight());
-        ui->drawzone->updateGeometry();
+        setDrawzoneSize(prop.getWidth(),prop.getHeight());
     }
     QVariant larg = ui->drawzone->width();
     QVariant haut = ui->drawzone->height();
@@ -614,6 +627,35 @@ void MainWindow::on_textEdit_textChanged()
     ui->drawzone->setactualtextContent(ui->textEdit->toPlainText());
 }
 
+void MainWindow::createUndoView()
+{
+    undoView = new QUndoView(ui->drawzone->getactualStack());
+    undoView->setWindowTitle(tr("Command List"));
+    undoView->setAttribute(Qt::WA_QuitOnClose, false);
+/*
+    ui->ActionListView = new QUndoView(ui->drawzone->getactualStack());
+    ui->ActionListView->update();
+    ui->ActionListView->show();
+*/
+}
+
+void MainWindow::undoButtonClicked()
+{
+    ui->drawzone->undo();
+}
+
+void MainWindow::redoButtonClicked()
+{
+    ui->drawzone->redo();
+}
+
+void MainWindow::ActionListClicked(){
+    if(undoView->isVisible()){
+        undoView->hide();
+    }else{
+        undoView->show();
+    }
+}
 bool MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
@@ -621,8 +663,6 @@ bool MainWindow::loadFile(const QString &fileName)
         QMessageBox::warning(nullptr, "Logiciel de dessin vectoriel","Format de fichier incompatible");
         return false;
     }
-
-    clearFile();
     QTextStream flux(&file);
     QString ligne,src;
     qDebug()<<"Traitement du fichier";
@@ -632,8 +672,8 @@ bool MainWindow::loadFile(const QString &fileName)
         //traitement de la ligne
         ligne = flux.readLine();
 
-            bool ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
-            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0;
+            bool isize=false, ipoly=false, ielli=false, ipath=false, irec=false, itext=false, iline=false, xRead=true,firstPointSet=false;
+            int x=-1,y=-1,x2=-1,y2=-1,w=-1,h=-1,s=-1,tsize=0,drawW=0, drawH=0;
             double r=-1.0;
             QColor qa, qb;
             QString t;
@@ -643,6 +683,7 @@ bool MainWindow::loadFile(const QString &fileName)
             QPointF coord;
             QFont font;
 
+            QRegExp rsize("(scene_size\\{)([.\\d]+)(,)([.\\d]+)(\\})");
             QRegExp rrect("(rect )([-\\d]+)( )([-\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
             QRegExp relli("(elli )([-\\d]+)( )([-\\d]+)( )([\\d]+)( )([\\d]+)( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)( )(#[\\w]+)");
             QRegExp rpath("(path )([\\{ ])([-. \\d]+)([ \\}])( )([-.\\d]+)( )([\\d]+)( )(#[\\w]+)");
@@ -650,6 +691,13 @@ bool MainWindow::loadFile(const QString &fileName)
             QRegExp rtext("(text )([-\\d]+)( )([-\\d]+)( )([-.\\d]+)( )[\(]([ \\w]+)(,)(\\d+)[\\)]( )([^\\n]+)");
             QRegExp rline("(line )([-\\d]+)( )([-\\d]+)( )([-\\d]+)( )([-\\d]+)( )([.-\\d]+)( )([\\d]+)( )(#[\\w]+)");
 
+            if(rsize.indexIn(ligne)!=-1){
+                qDebug()<<"Taille zone dessin";
+                drawW = rsize.cap(2).toInt();
+                drawH = rsize.cap(4).toInt();
+                isize=true;
+
+            }
             //le premier mot capturé commence à 1
             if(rrect.indexIn(ligne)!=-1){
                 qDebug()<<"lecture rectangle";
@@ -735,6 +783,11 @@ bool MainWindow::loadFile(const QString &fileName)
             }
 
          QGraphicsItem *qi=nullptr;
+         if(isize){
+             qDebug()<<"Le fichier est de taille : "<<drawW<<" * "<<drawH;
+             clearFile(false);
+             setDrawzoneSize(drawW,drawH);
+         }
          if(irec){
              qi=ui->drawzone->getScene()->addRect(x,y,w,h,QPen(qa,s),QBrush(qb));
          }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1190</width>
-    <height>1026</height>
+    <height>1025</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -191,6 +191,9 @@
    <addaction name="actionAide"/>
    <addaction name="separator"/>
    <addaction name="actionProprietes"/>
+   <addaction name="actionAnnuler"/>
+   <addaction name="actionR_tablir"/>
+   <addaction name="actionListe_D_actions"/>
   </widget>
   <widget class="QDockWidget" name="toolWidget">
    <property name="sizePolicy">
@@ -1138,7 +1141,7 @@ p, li { white-space: pre-wrap; }
    <property name="minimumSize">
     <size>
      <width>396</width>
-     <height>200</height>
+     <height>229</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -1151,16 +1154,16 @@ p, li { white-space: pre-wrap; }
     <string notr="true"/>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable</set>
+    <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
    <property name="allowedAreas">
-    <set>Qt::TopDockWidgetArea</set>
+    <set>Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string>Insertion d'images</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>4</number>
+    <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_4">
     <property name="sizePolicy">
@@ -1173,10 +1176,13 @@ p, li { white-space: pre-wrap; }
      <item row="0" column="0">
       <widget class="QListWidget" name="ImagelistView">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="resizeMode">
+        <enum>QListView::Adjust</enum>
        </property>
       </widget>
      </item>
@@ -1359,8 +1365,47 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Effectuer un&lt;span style=&quot; font-weight:600;&quot;&gt; zoom arrière&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
+  </action>
+  <action name="actionAnnuler">
+   <property name="icon">
+    <iconset resource="ressources.qrc">
+     <normaloff>:/ressources/Undo.png</normaloff>:/ressources/Undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Annuler</string>
+   </property>
+   <property name="toolTip">
+    <string>Annule la dernière action effectuée</string>
+   </property>
    <property name="shortcut">
-    <string>Ctrl+-</string>
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionR_tablir">
+   <property name="icon">
+    <iconset resource="ressources.qrc">
+     <normaloff>:/ressources/Redo.png</normaloff>:/ressources/Redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rétablir</string>
+   </property>
+   <property name="toolTip">
+    <string>Rétablit la dernière action annulée</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionListe_D_actions">
+   <property name="icon">
+    <iconset resource="ressources.qrc">
+     <normaloff>:/ressources/icons8-list-80.png</normaloff>:/ressources/icons8-list-80.png</iconset>
+   </property>
+   <property name="text">
+    <string>Liste D'actions</string>
+   </property>
+   <property name="toolTip">
+    <string>Affiche une liste des dernières actions effectuées</string>
    </property>
   </action>
  </widget>

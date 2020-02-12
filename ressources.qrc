@@ -24,4 +24,9 @@
         <file>ressources/mouse_pointer.png</file>
         <file>ressources/draw_polyline.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>ressources/Redo.png</file>
+        <file>ressources/Undo.png</file>
+        <file>ressources/icons8-list-80.png</file>
+    </qresource>
 </RCC>

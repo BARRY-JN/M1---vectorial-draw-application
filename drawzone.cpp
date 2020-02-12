@@ -12,7 +12,8 @@
 #include <QGraphicsDropShadowEffect>
 #include "mainwindow.h"
 #include "drawzone.h"
-
+#include <QUndoView>
+#include <QUndoCommand>
 static int largeur;
 static int hauteur;
 
@@ -26,6 +27,8 @@ drawZone::drawZone(QWidget *parent) :
     setScene(scene);
 
     focusPolicy();
+    undoStack = new QUndoStack(this);
+    QList<QGraphicsItem*> graphicsItemList(scene->items());
     qduplicate=new QAction("Dupliquer", this);
     qdelete=new QAction("Supprimer", this);
     menu=new QMenu(this);
@@ -53,6 +56,67 @@ drawZone::drawZone(QWidget *parent) :
 
 QGraphicsScene* drawZone::getScene(){
     return scene;
+}
+
+QUndoStack* drawZone::getactualStack(){
+    return undoStack;
+}
+
+QString createCommandString(const QPointF &pos)
+{
+    return QObject::tr("%1 at (%2, %3)")
+        .arg(pos.x()).arg(pos.y());
+}
+
+QUndoCommand* drawZone::AddShapeCommand(QGraphicsItem *item)
+{
+    QUndoCommand* Command = new QUndoCommand(); // an empty command
+    QString text;
+
+    RemovedItems.clear();
+    //Pour détecter le type de l'item sélectionné et afficher les caractéristiques correspondantes
+    pathItem = dynamic_cast<QGraphicsPathItem*>(item);
+    lineItem = dynamic_cast<QGraphicsLineItem*>(item);
+    polygonItem = dynamic_cast<QGraphicsPolygonItem*>(item);
+    rectItem = dynamic_cast<QGraphicsRectItem*>(item);
+    elliItem = dynamic_cast<QGraphicsEllipseItem*>(item);
+    textItem = dynamic_cast<QGraphicsTextItem*>(item);
+
+    if(pathItem){text.append("Path ");}
+    if(lineItem){text.append("Ligne ");}
+    if(polygonItem){text.append("Polygone ");}
+    if(rectItem){text.append("Rectangle ");}
+    if(elliItem){text.append("Ellipse ");}
+    if(textItem){text.append("Texte ");}
+
+
+    text.append("ajouté en ");
+    text.append(QString::number(item->scenePos().x()));
+    text.append(",");
+    text.append(QString::number(item->scenePos().y()));
+    Command->setText(text);
+
+    undoStack->push(Command);
+}
+
+void drawZone::undo()
+{
+    QList<QGraphicsItem*> graphicsItemList(scene->items());
+    if(!graphicsItemList.isEmpty()){
+        RemovedItems.prepend(graphicsItemList.first());
+        scene->removeItem(graphicsItemList.first());
+    }
+    undoStack->undo();
+    scene->update();
+}
+
+void drawZone::redo()
+{
+    if(!RemovedItems.isEmpty()){
+        scene->addItem(RemovedItems.takeFirst());
+    }
+    undoStack->redo();
+    scene->update();
 }
 
 void drawZone::setactualTool(Tool tool){
@@ -404,22 +468,24 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 circle->setFlag(QGraphicsEllipseItem::ItemIsSelectable);
                 circle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                 circle->setAcceptDrops(true);
-                //circle->setPos(point.x()-(actualSize/2),point.y()-(actualSize/2));
+
+                AddShapeCommand(circle);
 
                 break;
             }
             case(LINE):
             {
                 if(PointActuel==0){
-                    QGraphicsEllipseItem *ellipse;
-                    ellipse = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor);
-                    ellipse->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+                    //QGraphicsEllipseItem *ellipse;
+                    tmp_ellipse = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor);
+                    tmp_ellipse->setFlag(QGraphicsEllipseItem::ItemIsMovable);
                     PreviousPoint=point;
                     PointActuel=1;
                     return;
                 }
 
                 if(PointActuel==1){
+                    scene->removeItem(tmp_ellipse);
                     QGraphicsLineItem *line;
                     QPen pen;  // creates a default pen
 
@@ -429,9 +495,12 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                     pen.setCapStyle(Qt::RoundCap);
 
                     line = scene->addLine(PreviousPoint.x(),PreviousPoint.y(),point.x(),point.y(),pen);
+
                     line->setFlag(QGraphicsLineItem::ItemIsSelectable);
                     line->setFlag(QGraphicsLineItem::ItemIsMovable);
                     PointActuel=0;
+
+                    AddShapeCommand(line);
                     return;
                 }
                 break;
@@ -450,7 +519,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 //polygon->setPolygon(*poly);
                 polygon=scene->addPolygon(*poly,QPen(actualColor,actualSize,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),actualColor2);
                 actualPoint=scene->addEllipse(point.x()-(actualSize+5)/2,point.y()-(actualSize+5)/2,actualSize+10,actualSize+10, QColor(Qt::red), QColor(Qt::red));
-
+                AddShapeCommand(polygon);
                 break;
             }
 
@@ -461,6 +530,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 rectangle = scene->addRect(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize,actualColor, actualColor2);
                 rectangle->setFlag(QGraphicsRectItem::ItemIsSelectable);
                 rectangle->setFlag(QGraphicsRectItem::ItemIsMovable);
+                AddShapeCommand(rectangle);
                 break;
             }
 
@@ -473,6 +543,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 polygon=scene->addPolygon(poly,actualColor, actualColor2);
                 polygon->setFlag(QGraphicsPolygonItem::ItemIsSelectable);
                 polygon->setFlag(QGraphicsPolygonItem::ItemIsMovable);
+                AddShapeCommand(polygon);
                 break;
             }
 
@@ -485,6 +556,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 text->setFlag(QGraphicsTextItem::ItemIsSelectable);
                 text->setFlag(QGraphicsTextItem::ItemIsMovable);
                 text->setFlag(QGraphicsTextItem::ItemIsFocusable);
+                AddShapeCommand(text);
                 break;
             }
             case(CURSOR):

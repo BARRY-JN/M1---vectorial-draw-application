@@ -6,6 +6,8 @@
 #include <QGraphicsItem>
 #include <QFileSystemModel>
 #include <QListWidgetItem>
+#include <QUndoView>
+#include <QUndoCommand>
 #include "propiete.h"
 
 QT_BEGIN_NAMESPACE
@@ -30,7 +32,8 @@ public:
     static void leaveDrawZone();
     void importFile(const QString &fileName);
     void showStatusMessage(const QString &msg);
-    void clearFile();
+    void clearFile(bool);
+    QUndoStack *undoStack;
 
 private slots:
     void newFile();
@@ -59,6 +62,10 @@ private slots:
     void helpButtonClicked();
     void toolButtonClicked();
     void propertyButtonClicked();
+    void undoButtonClicked();
+    void redoButtonClicked();
+    void ActionListClicked();
+
     void on_fillColorButton_clicked();
     void on_strokeColorButton2_clicked();
     void on_squareButton_clicked();
@@ -69,6 +76,9 @@ private slots:
     void on_actionZoomMoins_triggered();
     void on_actionExporter_triggered();
     void on_actionImporter_triggered();
+
+
+
     void on_cursorButton_clicked();
     void on_freeDrawButton_clicked();
     void on_pointButton_clicked();
@@ -82,13 +92,13 @@ private slots:
 
     void on_textEdit_textChanged();
 
-    void setDrawzoneSize(int width);
+    void setDrawzoneSize(int width, int height);
 
     void on_treeFolder_clicked(const QModelIndex &index);
     void imageLoaded(QString , QString , QImage , QByteArray );
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
@@ -114,6 +124,11 @@ private:
     QGraphicsRectItem* rectItem;
     QGraphicsEllipseItem* elliItem ;
     QGraphicsTextItem* textItem;
+    QGraphicsPixmapItem* imgItem;
+
+    //Pour Undo/Redo
+    void createUndoView();
+    QUndoView *undoView;
 
     //Pour l'insertion d'images
     QFileSystemModel *folderModel;
