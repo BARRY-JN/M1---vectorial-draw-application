@@ -34,7 +34,7 @@ drawZone::drawZone(QWidget *parent) :
     menu=new QMenu(this);
     menu->addAction(qduplicate);
     menu->addAction(qdelete);
-    connect(qduplicate, SIGNAL(triggered()),this,SLOT(CopyItem()));
+    connect(qduplicate, SIGNAL(triggered()),this,SLOT(DuplicateItem()));
     connect(qdelete, SIGNAL(triggered()),this,SLOT(deleteItem()));
 
 /*
@@ -89,11 +89,10 @@ QUndoCommand* drawZone::AddShapeCommand(QGraphicsItem *item)
     if(elliItem){text.append("Ellipse ");}
     if(textItem){text.append("Texte ");}
 
-
     text.append("ajouté en ");
-    text.append(QString::number(item->scenePos().x()));
-    text.append(",");
-    text.append(QString::number(item->scenePos().y()));
+    text.append(QString::number(item->sceneBoundingRect().x()));
+    text.append(" , ");
+    text.append(QString::number(item->sceneBoundingRect().y()));
     Command->setText(text);
 
     undoStack->push(Command);
@@ -263,11 +262,22 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
             scene->removeItem(previewPoint);
         previewPoint=scene->addEllipse(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize, QPen(QColor(Qt::black),2), QColor(Qt::transparent));
     }
+    if(ev->buttons().testFlag(Qt::LeftButton)){
+        if(actualTool==CIRCLE){
 
-    if(actualTool==CIRCLE){
-        if(previewcircle!=nullptr)
-            scene->removeItem(previewcircle);
-        previewcircle = scene->addEllipse(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
+                if(previewcircle!=nullptr)
+                    scene->removeItem(previewcircle);
+                previewcircle = scene->addEllipse(PreviousPoint.x(),PreviousPoint.y(),abs(point.x()-PreviousPoint.x()),abs(point.y()-PreviousPoint.y()),actualColor, actualColor2);
+
+        }
+
+        if(actualTool==RECTANGLE){
+                if(previewrectangle!=nullptr)
+                    scene->removeItem(previewrectangle);
+
+                previewrectangle = scene->addRect(PreviousPoint.x(),PreviousPoint.y(),abs(point.x()-PreviousPoint.x()),abs(point.y()-PreviousPoint.y()),actualColor, actualColor2);
+
+        }
     }
 
     if(actualTool==LINE){
@@ -287,18 +297,31 @@ void drawZone::mouseMoveEvent(QMouseEvent *ev)
         }
     }
 
-    if(actualTool==RECTANGLE){
-        if(previewrectangle!=nullptr)
-            scene->removeItem(previewrectangle);
-        previewrectangle = scene->addRect(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
-    }
-
     if(actualTool==TRIANGLE){
         if(previewtriangle!=nullptr)
             scene->removeItem(previewtriangle);
-        QPolygonF poly;
-        poly << QPointF(point.x()-actualSize, point.y()) << QPointF(point.x()+actualSize, point.y()) << QPointF(point.x(), point.y()-actualSize );
-        previewtriangle = scene->addPolygon(poly,actualColor, actualColor2);
+
+        tripoly.clear();
+        if(!pt1){
+            trianglep1=point;
+            tripoly.append(trianglep1);
+            tripoly.append(trianglep1);
+            tripoly.append(trianglep1);
+        }else{
+            if(!pt2){
+                trianglep2=point;
+                tripoly.append(trianglep1);
+                tripoly.append(trianglep2);
+                tripoly.append(trianglep2);
+            }else{
+                trianglep3=point;
+                tripoly.append(trianglep1);
+                tripoly.append(trianglep2);
+                tripoly.append(trianglep3);
+            }
+        }
+
+        previewtriangle = scene->addPolygon(tripoly,actualColor, actualColor2);
     }
 
     if(actualTool==TEXT){
@@ -350,6 +373,14 @@ void drawZone::keyPressEvent( QKeyEvent *ev){
             doRotate=!doRotate;
             qDebug()<<"rotation activée";
         }
+
+        if(ev->key() == Qt::Key_Delete ){
+            deleteItem();
+        }
+
+        if(ev->key() == Qt::Key_D)
+            DuplicateItem();
+
     }
 
 }
@@ -391,8 +422,21 @@ void drawZone::mouseReleaseEvent(QMouseEvent *event){
         previewPoint=nullptr;
     }
 
-    if(actualTool==IMAGE){
+    if(actualTool==RECTANGLE){
+        if(previewrectangle){
+            previewrectangle->setFlags(QGraphicsItem::ItemIsMovable|QGraphicsItem::ItemIsSelectable|QGraphicsTextItem::ItemIsFocusable);
+            AddShapeCommand(previewrectangle);
+            previewrectangle=nullptr;
+        }
+    }
 
+    if(actualTool==CIRCLE){
+        if(previewcircle){
+            previewcircle->setFlag(QGraphicsEllipseItem::ItemIsSelectable);
+            previewcircle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
+            AddShapeCommand(previewcircle);
+            previewcircle=nullptr;
+        }
     }
 }
 
@@ -467,13 +511,7 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
         switch(actualTool){
             case(CIRCLE):
             {
-                QGraphicsEllipseItem *circle;
-                circle = scene->addEllipse(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize,actualColor, actualColor2);
-                circle->setFlag(QGraphicsEllipseItem::ItemIsSelectable);
-                circle->setFlag(QGraphicsEllipseItem::ItemIsMovable);
-                circle->setAcceptDrops(true);
-
-                AddShapeCommand(circle);
+                PreviousPoint =point;
 
                 break;
             }
@@ -523,31 +561,40 @@ void drawZone::mousePressEvent(QMouseEvent *ev)
                 //polygon->setPolygon(*poly);
                 polygon=scene->addPolygon(*poly,QPen(actualColor,actualSize,Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),actualColor2);
                 actualPoint=scene->addEllipse(point.x()-(actualSize+5)/2,point.y()-(actualSize+5)/2,actualSize+10,actualSize+10, QColor(Qt::red), QColor(Qt::red));
+                polygon->setFlag(QGraphicsLineItem::ItemIsSelectable);
+                polygon->setFlag(QGraphicsLineItem::ItemIsMovable);
                 AddShapeCommand(polygon);
                 break;
             }
 
             case(RECTANGLE):
             {
-                QGraphicsRectItem *rectangle;
                 //rectangle = scene->addRect(point.x()-(actualSize/2),point.y()-(actualSize/2),actualSize,actualSize,actualColor, actualColor2);
-                rectangle = scene->addRect(point.x()-actualSize/2,point.y()-actualSize/2,actualSize,actualSize,actualColor, actualColor2);
-                rectangle->setFlag(QGraphicsRectItem::ItemIsSelectable);
-                rectangle->setFlag(QGraphicsRectItem::ItemIsMovable);
-                AddShapeCommand(rectangle);
+                PreviousPoint = point;
+
                 break;
             }
 
             case(TRIANGLE):
             {
-                QGraphicsPolygonItem *polygon;
-                QPolygonF poly;
-                //poly << QPointF(point.x()-actualSize, point.y()) << QPointF(point.x()+actualSize, point.y()) << QPointF(point.x(), point.y()-actualSize );
-                poly << QPointF(point.x()-actualSize, point.y()) << QPointF(actualSize+point.x(), point.y()) << QPointF(point.x(), point.y()-actualSize );
-                polygon=scene->addPolygon(poly,actualColor, actualColor2);
-                polygon->setFlag(QGraphicsPolygonItem::ItemIsSelectable);
-                polygon->setFlag(QGraphicsPolygonItem::ItemIsMovable);
-                AddShapeCommand(polygon);
+                if(!pt1){
+                    trianglep1=point;
+                    pt1=true;
+                }else{
+                    if(!pt2){
+                        trianglep2=point;
+                        pt2=true;
+                    }else{
+                        trianglep3=point;
+                        pt1=false;
+                        pt2=false;
+                        previewtriangle->setFlag(QGraphicsLineItem::ItemIsSelectable);
+                        previewtriangle->setFlag(QGraphicsLineItem::ItemIsMovable);
+                        AddShapeCommand(previewtriangle);
+                        previewtriangle=nullptr;
+                    }
+                }
+
                 break;
             }
 
@@ -676,7 +723,7 @@ void drawZone::deleteItem()
 
 }
 
-void drawZone::CopyItem()
+void drawZone::DuplicateItem()
 {
   QGraphicsItem* actItem =  SelItem;
 

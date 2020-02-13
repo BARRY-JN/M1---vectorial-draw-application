@@ -110,6 +110,7 @@ void MainWindow::dockWidgetInit(){
     connect(ui->actionAnnuler, SIGNAL(triggered()),this, SLOT(undoButtonClicked()));
     connect(ui->actionR_tablir, SIGNAL(triggered()),this, SLOT(redoButtonClicked()));
     connect(ui->actionListe_D_actions, SIGNAL(triggered()),SLOT(ActionListClicked()));
+    connect(ui->imageWidget, SIGNAL(visibilityChanged(bool)),SLOT(ImageWidgetOpened(bool)));
 
 }
 
@@ -124,9 +125,9 @@ void MainWindow::propertyWidgetInit(){
     connect(ui->squareButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
     connect(ui->triangleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
     connect(ui->circleButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
+    connect(ui->pointButton, SIGNAL(clicked()),this,SLOT(shapeToolSelected()));
 
     connect(ui->lineButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
-    connect(ui->pointButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
     connect(ui->freeDrawButton, SIGNAL(clicked()),this,SLOT(lineToolSelected()));
     connect(ui->textButton, SIGNAL(clicked()),this,SLOT(textToolSelected()));
 
@@ -144,6 +145,13 @@ MainWindow::~MainWindow()
     delete labIcon;
     delete labMsg;
     delete ui;
+}
+
+void MainWindow::ImageWidgetOpened(bool opened){
+    if(!opened){
+        noPropertyToolSelected();
+        ui->cursorButton->setChecked(true);
+    }
 }
 
 void MainWindow::initStatusBar()
@@ -186,7 +194,12 @@ void MainWindow::actualToolChangeProperty(Tool tool){
 
 void MainWindow::newFile()
 {
+
     clearFile(true);
+    ui->drawzone->resetMatrix();
+
+
+
 }
 
 void MainWindow::clearFile(bool reset_size){
@@ -205,6 +218,7 @@ void MainWindow::clearFile(bool reset_size){
     }
     ui->drawzone->selectNothing();
     ui->drawzone->setactualTool(CURSOR);
+
 }
 
 static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
@@ -266,7 +280,8 @@ bool MainWindow::saveAs()
         if (dialog.exec() != QDialog::Accepted)
             return false;
         filePath=dialog.selectedFiles().first();
-        dialog.setDefaultSuffix("fdv");
+        if(!filePath.contains(".fdv"))
+            filePath.append(".fdv");
         return saveFile(filePath);
 }
 
@@ -642,7 +657,7 @@ void MainWindow::on_textEdit_textChanged()
 void MainWindow::createUndoView()
 {
     undoView = new QUndoView(ui->drawzone->getactualStack());
-    undoView->setWindowTitle(tr("Command List"));
+    undoView->setWindowTitle(tr("Dernières actions effectuées"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
 /*
     ui->ActionListView = new QUndoView(ui->drawzone->getactualStack());

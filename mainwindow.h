@@ -45,6 +45,7 @@ private slots:
     void changeStrokeSize(int);
     void changeTextFont(QFont);
     void changeTextContent(QString);
+    void ImageWidgetOpened(bool);
 
     void dockWidgetInit();
     void propertyWidgetInit();

@@ -58,7 +58,7 @@ protected:
 
 private slots:
     void deleteItem();
-    void CopyItem();
+    void DuplicateItem();
 
 private :
     QGraphicsScene *scene;
@@ -77,6 +77,7 @@ private :
     QPainter *painter;
     QMenu *menu;
     QAction *qduplicate, *qdelete;
+
 
     //Pour le dessin à main levée
     QGraphicsPathItem *pathitem=nullptr;
@@ -113,6 +114,9 @@ private :
      QGraphicsPolygonItem* previewtriangle=nullptr ;
      QGraphicsRectItem* previewrectangle=nullptr;
      QGraphicsTextItem* previewtext=nullptr;
+     QPolygonF tripoly;
+     QPointF trianglep1,trianglep2,trianglep3;
+     bool pt1=false,pt2=false,pt3=false;
 
      QPointF PreviousPoint;
      QGraphicsEllipseItem *tmp_ellipse=nullptr;
