@@ -296,21 +296,25 @@ bool MainWindow::saveFile(const QString &fileName)
                                   file.errorString()));
         return false;
     }
-    QString it, coord;
+
+    QStringList it;
     it.append("scene_size{"+QString::number(ui->drawzone->getScene()->width())+","+QString::number(ui->drawzone->getScene()->height())+"}\n");
     foreach (QGraphicsItem *item, ui->drawzone->getScene()->items()){
+        QString coord, tmp;
+
         imgItem =dynamic_cast<QGraphicsPixmapItem*>(item);
         if(imgItem){
             qDebug()<<"sauvegarder image";
-            it.append("img "+QString::number(imgItem->x())+" "+QString::number(imgItem->y())+" "+QString::number(imgItem->rotation())+" { ");
+            tmp.append("img "+QString::number(imgItem->x())+" "+QString::number(imgItem->y())+" "+QString::number(imgItem->rotation())+" { ");
             QBuffer buffer;
             buffer.open(QIODevice::WriteOnly);
             imgItem->pixmap().save(&buffer, "PNG");
             auto const encoded = buffer.data().toBase64();
             QString imgData = QLatin1String(encoded);
-            it.append(imgData);
-            it.append(" }");
+            tmp.append(imgData);
+            tmp.append(" }\n");
         }
+
 
         pathItem = dynamic_cast<QGraphicsPathItem*>(item);
         if(pathItem){
@@ -319,11 +323,11 @@ bool MainWindow::saveFile(const QString &fileName)
                 coord.append(QString::number(pathItem->path().elementAt(i).x)+" "+QString::number(pathItem->path().elementAt(i).y)+" ");
             }
             coord.append("}");
-            it.append("path "+coord+" "+QString::number(pathItem->rotation())+" "+QString::number(pathItem->pen().width())+" "+pathItem->pen().color().name());
+            tmp.append("path "+coord+" "+QString::number(pathItem->rotation())+" "+QString::number(pathItem->pen().width())+" "+pathItem->pen().color().name());
         }
         lineItem = dynamic_cast<QGraphicsLineItem*>(item);
         if(lineItem)
-            it.append("line "+QString::number(lineItem->line().x1())+" "+QString::number(lineItem->line().y1())+" "+QString::number(lineItem->line().x2())+" "+QString::number(lineItem->line().y2())+" "+QString::number(lineItem->rotation())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
+            tmp.append("line "+QString::number(lineItem->line().x1())+" "+QString::number(lineItem->line().y1())+" "+QString::number(lineItem->line().x2())+" "+QString::number(lineItem->line().y2())+" "+QString::number(lineItem->rotation())+" "+QString::number(lineItem->pen().width())+" "+lineItem->pen().color().name());
 
         polygonItem = dynamic_cast<QGraphicsPolygonItem*>(item);
         if(polygonItem){
@@ -332,29 +336,30 @@ bool MainWindow::saveFile(const QString &fileName)
                 coord.append(QString::number(polygonItem->polygon().value(i).x())+" "+QString::number(polygonItem->polygon().value(i).y())+" ");
             }
             coord.append("}");
-            it.append("poly "+coord+" "+QString::number(polygonItem->rotation())+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
+            tmp.append("poly "+coord+" "+QString::number(polygonItem->rotation())+" "+QString::number(polygonItem->pen().width())+" "+polygonItem->pen().color().name()+" "+polygonItem->brush().color().name());
         }
 
         rectItem = dynamic_cast<QGraphicsRectItem*>(item);
         if(rectItem)
-            it.append("rect "+QString::number(rectItem->rect().x())+" "+QString::number(rectItem->rect().y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+QString::number(rectItem->rotation())+" "+ QString::number(rectItem->pen().width())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
+            tmp.append("rect "+QString::number(rectItem->rect().x())+" "+QString::number(rectItem->rect().y())+" "+QString::number(rectItem->rect().width())+" "+QString::number(rectItem->rect().height())+" "+QString::number(rectItem->rotation())+" "+ QString::number(rectItem->pen().width())+" "+rectItem->pen().color().name()+" "+rectItem->brush().color().name());
 
         elliItem = dynamic_cast<QGraphicsEllipseItem*>(item);
         if(elliItem)
-            it.append("elli "+QString::number(elliItem->rect().x())+" "+QString::number(elliItem->rect().y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+QString::number(elliItem->rotation())+" "+ QString::number(elliItem->pen().width())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
+            tmp.append("elli "+QString::number(elliItem->rect().x())+" "+QString::number(elliItem->rect().y())+" "+QString::number(elliItem->rect().width())+" "+QString::number(elliItem->rect().height())+" "+QString::number(elliItem->rotation())+" "+ QString::number(elliItem->pen().width())+" "+elliItem->pen().color().name()+" "+elliItem->brush().color().name());
 
         textItem = dynamic_cast<QGraphicsTextItem*>(item);
         if(textItem)
-            it.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+QString::number(textItem->rotation())+" ("+ textItem->font().family()+ ","+QString::number(textItem->font().pointSize()) +") " + textItem->toPlainText().simplified());
+            tmp.append("text " + QString::number(textItem->x())+" "+QString::number(textItem->y())+" "+QString::number(textItem->rotation())+" ("+ textItem->font().family()+ ","+QString::number(textItem->font().pointSize()) +") " + textItem->toPlainText().simplified());
         coord="";
-        it.append("\n");
+        tmp.append("\n");
+
+        it.append(tmp);
     }
 
     QTextStream outputStream(&file);
-    outputStream << it;
+    for ( QStringList::Iterator iterator = it.begin(); iterator != it.end(); ++iterator )
+                    outputStream << *iterator << "\n";
     file.close();
-
-    it="";
 
     showStatusMessage("File saved");
     return true;
@@ -706,7 +711,7 @@ bool MainWindow::loadFile(const QString &fileName)
             QString t;
             QPolygonF *poly=new QPolygonF();
             QPainterPath *path=new QPainterPath();
-            QString points, imgData;
+            QString points="", imgData="";
             QPointF coord;
             QFont font;
 
@@ -806,6 +811,7 @@ bool MainWindow::loadFile(const QString &fileName)
             for (auto src : word){
                 if(xRead){
                     coord.setX(src.toInt());
+                    qDebug()<<"a";
                 }else{
                     coord.setY(src.toInt());
                     if(!firstPointSet){
@@ -816,6 +822,7 @@ bool MainWindow::loadFile(const QString &fileName)
                         poly->append(coord);
                         path->lineTo(coord);
                     }
+                    qDebug()<<"b";
                 }
                 xRead=!xRead;
             }

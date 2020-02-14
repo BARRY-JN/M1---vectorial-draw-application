@@ -449,9 +449,9 @@ void drawZone::dragEnterEvent(QDragEnterEvent *event)
 void drawZone::dropEvent(QDropEvent *event){
     QList<QUrl> url = event->mimeData()->urls();
     QGraphicsPixmapItem *qpi = scene->addPixmap(url.first().toString());
-    qpi->setFlag(QGraphicsTextItem::ItemIsSelectable);
-    qpi->setFlag(QGraphicsTextItem::ItemIsMovable);
-    qpi->setFlag(QGraphicsTextItem::ItemIsFocusable);
+    qpi->setFlag(QGraphicsPixmapItem::ItemIsSelectable);
+    qpi->setFlag(QGraphicsPixmapItem::ItemIsMovable);
+    qpi->setFlag(QGraphicsPixmapItem::ItemIsFocusable);
     qpi->setPos(event->pos());
     event->acceptProposedAction();
 
