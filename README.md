@@ -13,6 +13,7 @@ Logiciel de dessin vectoriel développé en C++ avec Qt 4
 * Texte
 * Image
 * Précédent / Suivant
+* Rotation
 
 ### Caractéristiques des outils (en fonction de l'outil sélectionné) :
 * Epaisseur de la ligne
