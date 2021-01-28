@@ -5,7 +5,7 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QtGui>
-#include <QWidget>
+//#include <QWidget>
 #include <QColor>
 #include <QGraphicsDropShadowEffect>
 #include "mainwindow.h"
