@@ -1,5 +1,4 @@
 # Application de dessin vectoriel
-
 Logiciel de dessin vectoriel développé en C++ avec Qt 4
 
 ## Fonctionnalitées :
